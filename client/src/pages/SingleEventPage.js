@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import "../css/SingleEventPage.css";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
@@ -18,16 +19,16 @@ function SingleEventPage() {
     };
     
     const defaultDonors = [
-        { id: 1, first_name: "John", last_name: "Doe", total_donation: 5, city: "Vancouver", medical_focus: "Blood", engagement: "High", email: "john.doe@example.com", pmm: "A" },
-        { id: 2, first_name: "Jane", last_name: "Smith", total_donation: 3, city: "Burnaby", medical_focus: "Plasma", engagement: "Medium", email: "jane.smith@example.com", pmm: "B" },
-        { id: 3, first_name: "Alex", last_name: "Johnson", total_donation: 2, city: "Richmond", medical_focus: "Platelets", engagement: "Low", email: "alex.j@example.com", pmm: "C" }
+        { id: 1, first_name: "John", last_name: "Doe", total_donation: 5, city: "Vancouver", medical_focus: "Blood", engagement: "Highly Engaged", email: "john.doe@example.com", pmm: "A" },
+        { id: 2, first_name: "Jane", last_name: "Smith", total_donation: 3, city: "Burnaby", medical_focus: "Plasma", engagement: "Moderately Engaged", email: "jane.smith@example.com", pmm: "B" },
+        { id: 3, first_name: "Alex", last_name: "Johnson", total_donation: 2, city: "Richmond", medical_focus: "Platelets", engagement: "Rarely Engaged", email: "alex.j@example.com", pmm: "C" }
     ];
 
     // create variables to store event data and navigate to other pages
     const { eventId } = useParams();
     const [event, setEvent] = useState(defaultEvent);
     const [donors, setDonors] = useState(defaultDonors);
-    const [isFormVisible, setIsFormVisible] = useState(false);
+    const [isFormVisible, setIsFormVisible] = useState(true);
     const navigate = useNavigate();
 
     // fetch event and donors data
@@ -68,6 +69,38 @@ function SingleEventPage() {
         } catch (error) {
             // handle errors
             console.error("Failed to delete event:", error);
+            alert(error.message);
+        }
+    };
+
+    // export the donor list
+    const handleExport = async () => {
+        try {
+            // check if there are donors to export
+            if (donors.length === 0) {
+                alert("No donors to export!");
+                return;
+            }
+            // export the donors
+            // get donors data
+            const response = await axios.get('http://localhost:3001/events/' + eventId + '/donors/export', {
+                responseType: 'blob',
+            });
+            // create a URL to download the file
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `donors_list_${eventId}.csv`);
+            // click the link to download the file
+            document.body.appendChild(link);
+            link.click();
+            // remove the link
+            link.remove();
+            URL.revokeObjectURL(url);
+
+        } catch (error) {
+            // handle errors
+            console.error("Failed to export donors:", error);
             alert(error.message);
         }
     };
@@ -120,8 +153,10 @@ function SingleEventPage() {
                     <div className="donor-form">
                         <div className="donor-header">
                             <h2>Donor List</h2>
-                            <button>Edit</button>
-                            <button>Export</button>
+                            <div className="donor-buttons">                            
+                                <button>Edit</button>
+                                <button onClick={handleExport}>Export</button>
+                            </div>
                         </div>
                         <table className="donor-table">
                             <thead>
@@ -134,21 +169,21 @@ function SingleEventPage() {
                                     <th>Email Address</th>
                                     <th>PMM</th>
                                 </tr>
-                                <tbody>
-                                    {donors.map((donor) => (
-                                        <tr key={donor.id}>
-                                            <td>{donor.first_name} {donor.last_name}</td>
-                                            <td>{donor.total_donation}</td>
-                                            <td>{donor.city}</td>
-                                            <td>{donor.medical_focus}</td>
-                                            <td>{donor.engagement}</td>
-                                            <td>{donor.email}</td>
-                                            <td>{donor.pmm}</td>
-
-                                        </tr>
-                                    ))}
-                                </tbody>
                             </thead>
+                            <tbody>
+                                {donors.map((donor) => (
+                                    <tr key={donor.id}>
+                                        <td>{donor.first_name} {donor.last_name}</td>
+                                        <td>{donor.total_donation}</td>
+                                        <td>{donor.city}</td>
+                                        <td>{donor.medical_focus}</td>
+                                        <td>{donor.engagement}</td>
+                                        <td>{donor.email}</td>
+                                        <td>{donor.pmm}</td>
+
+                                    </tr>
+                                ))}
+                            </tbody>
                         </table>
                     </div>
                 )}
