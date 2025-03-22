@@ -7,21 +7,21 @@ import { useNavigate } from "react-router-dom";
 // API: '/events/:eventId'
 function SingleEventPage() {
     const defaultEvent = {
-        name: "Charity Blood Drive",
+        name: "Brain Cancer Workshop",
         date: "2025-04-01",
         location: "Downtown Center",
         city: "Vancouver",
-        medical_focus: "Blood Donation",
+        medical_focus: "Brain Cancer",
         capacity: 200,
         coordinator: "Dr. Emily Chen",
         fundraiser: "Health Support Foundation",
-        detailed_info: "Join us to save lives with your generous blood donation!"
+        detailed_info: "Join us to save lives!"
     };
     
     const defaultDonors = [
-        { id: 1, first_name: "John", last_name: "Doe", total_donation: 5, city: "Vancouver", medical_focus: "Blood", engagement: "Highly Engaged", email: "john.doe@example.com", pmm: "A" },
-        { id: 2, first_name: "Jane", last_name: "Smith", total_donation: 3, city: "Burnaby", medical_focus: "Plasma", engagement: "Moderately Engaged", email: "jane.smith@example.com", pmm: "B" },
-        { id: 3, first_name: "Alex", last_name: "Johnson", total_donation: 2, city: "Richmond", medical_focus: "Platelets", engagement: "Rarely Engaged", email: "alex.j@example.com", pmm: "C" }
+        { id: 1, first_name: "John", last_name: "Doe", total_donation: 5, city: "Vancouver", medical_focus: "Brain Cancer", engagement: "Highly Engaged", email: "john.doe@example.com", pmm: "A" },
+        { id: 2, first_name: "Jane", last_name: "Smith", total_donation: 3, city: "Burnaby", medical_focus: "Brain Cancer", engagement: "Moderately Engaged", email: "jane.smith@example.com", pmm: "B" },
+        { id: 3, first_name: "Alex", last_name: "Johnson", total_donation: 2, city: "Richmond", medical_focus: "Lung Cancer", engagement: "Rarely Engaged", email: "alex.j@example.com", pmm: "C" }
     ];
 
     // create variables to store event data and navigate to other pages
@@ -189,9 +189,11 @@ function SingleEventPage() {
                 )}
                 {!isFormVisible && (
                     // TODO: Add onclick event to the button
-                    <button>
-                        GENERATE DONOR LIST
-                    </button>
+                    <div className="generate-button">
+                        <button>
+                            Generate
+                        </button>
+                    </div>
                 )}
             </div>
         </div>
