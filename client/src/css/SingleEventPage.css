@@ -1,5 +1,6 @@
 .event-container {
-    padding: 16px;
+    margin-left: 10%;
+    margin-right: 10%;
 }
 
 .event-header {
@@ -21,6 +22,12 @@
     border: none;
     cursor: pointer;
     border-radius: 4px;
+    max-width: 8%;
+    text-align: center;
+}
+
+.delete-button:hover {
+    background-color: #dc2626;
 }
 
 .event-details-container {
@@ -42,17 +49,16 @@
 .event-details-info {
     grid-column: span 2;
     margin-top: 8px;
+    border-radius: 8px;
+    background: beige;
+    padding-left: 16px;
+    padding-right: 16px;
+    padding-top: 8px;
+    padding-bottom: 8px;
 }
 
 .donor-container {
     margin-top: 24px;
-}
-
-.donor-form {
-    background: white;
-    padding: 16px;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .donor-header {
@@ -66,7 +72,7 @@
     font-size: 20px;
 }
 
-.donor-header button {
+.donor-container button {
     background-color: #3b82f6;
     color: white;
     padding: 6px 10px;
@@ -74,6 +80,12 @@
     border: none;
     border-radius: 4px;
     cursor: pointer;
+    max-width: 8%;
+    text-align: center;
+}
+
+.donor-container button:hover {
+    background-color: #2563eb;
 }
 
 .donor-table {
@@ -92,7 +104,22 @@
     background-color: #f4f4f4;
 }
 
-button.generate-button {
+.donor-table tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+.donor-table tr:nth-child(odd) {
+    background-color: #ffffff;
+}
+
+.generate-button {
+    display: flex;
+    justify-content: flex-start;
+    align-items: start;
+    margin-top: 16px;
+}
+
+.generate-button button{
     padding: 8px 12px;
     border: none;
     background-color: #10b981;
@@ -100,9 +127,10 @@ button.generate-button {
     border-radius: 4px;
     cursor: pointer;
     display: block;
-    margin: 16px auto;
+    max-width: 8%;
+    text-align: center;
 }
 
-button.generate-button:hover {
-    background-color: #059669;
+.generate-button button:hover {
+    background-color: #047857;
 }
