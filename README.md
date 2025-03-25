@@ -1,70 +1,197 @@
-# Getting Started with Create React App
+# Backend API Routes Overview (For Frontend Integration)
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This document explains how to interact with the backend event/donor management API. All routes return JSON unless otherwise stated.
 
-## Available Scripts
+## 1. GET /events
 
-In the project directory, you can run:
+Retrieve all events with computed status based on the number of saved donors:
 
-### `npm start`
+Status logic:
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- Not Started: 0 donors assigned
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+- In Process: 1 to (capacity - 1) donors assigned
 
-### `npm test`
+- Fully Invited: capacity number of donors assigned
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Returns:
 
-### `npm run build`
+```
+[
+  {
+    "id": 1,
+    "name": "Event A",
+    "city": "Vancouver",
+    "date": "2025-04-01",
+    "location": "Conference Hall",
+    "medical_focus": "Brain Cancer",
+    "capacity": 10,
+    "coordinator": "Alice",
+    "fundraiser": "Bob",
+    "status": "In Process"
+  },
+  ...
+]
+```
+## 2.  GET /events/search
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Search events with optional filters:
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+name, city, focus, coordinator, fundraiser, status
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Returns: Events matching the filter, each with computed status.
 
-### `npm run eject`
+## 3. POST /events
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+Create a new event.
+Request body:
+```json
+{
+  "name": "Event A",
+  "date": "2025-04-01",
+  "city": "Vancouver",
+  "location": "Conference Center",
+  "medical_focus": "Brain Cancer",
+  "capacity": 10,
+  "coordinator": "Alice",
+  "fundraiser": "Bob",
+  "details": "Event details here."
+}
+``` 
+Returns:
+```json
+{
+  "message": "Event created successfully",
+  "eventId": 2
+}
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## 4. GET /events/:eventId/suggest-donors
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+Generate two lists of suggested donors (based on match logic):
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+- best (capacity size)
 
-## Learn More
+- additional (extra matching donors)
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+Matching criteria:
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+- Default filters: Event city, medical focus, engagement = "Highly Engaged"
 
-### Code Splitting
+- Query Parameters (optional): city, medical_focus, engagement
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+Donor must not be:
 
-### Analyzing the Bundle Size
+- already saved for the event
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+- currently added in the temp list
 
-### Making a Progressive Web App
+Donor can be included if previously deleted from the temp list 
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+Returns:
+```
+{
+  "best": [ { donor fields... }, ... ],
+  "additional": [ { donor fields... }, ... ]
+}
+```
+Each donor info includes:
+```json
+{
+  "id": 101,
+  "name": "Jane Doe",
+  "total_donation": 250000,
+  "city": "Vancouver",
+  "medical_focus": "Brain Cancer",
+  "engagement": "Highly Engaged",
+  "email": "jane@example.com",
+  "pmm": "PMM1"
+}
+```
+## 5. POST /events/:eventId/donors/add
+Description:
+Temporarily add a donor to the candidate list for an event.
 
-### Advanced Configuration
+Request Body:
+```json
+{
+  "donorId": 101
+}
+```
+Returns:
+```json
+{ "message": "Donor temporarily added" }
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+## 6. POST /events/:eventId/donors/remove
 
-### Deployment
+**Description:** Temporarily remove a donor from the candidate list.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+**Request Body:**
+```json
+{
+  "donorId": 101
+}
+```
+**Returns:**
+```json
+{ "message": "Donor temporarily removed" }
+```
+## 7. POST /events/:eventId/donors/save
+**Description:** Save the current candidate donor list to the database for the event. 
 
-### `npm run build` fails to minify
+**Returns:**
+```json
+{ "message": "Donor list saved" }
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## 8. POST /events/:eventId/donors/cancel
+**Description:** Cancel all unsaved donor changes for the event. 
+
+**Returns:**
+```json
+{ "message": "Donor edits canceled" }
+```
+
+## 9. GET /events/:eventId/donors/search
+**Description:** Search for a donor by name and return those not already saved or added to the current candidate list (but includes deleted ones). 
+
+**Query Example:**
+```
+/events/1/donors/search?name=Jane
+```
+
+**Returns:**
+```json
+[
+  {
+    "id": 101,
+    "name": "Jane Doe",
+    "total_donation": 250000,
+    "city": "Vancouver",
+    "medical_focus": "Brain Cancer",
+    "engagement": "Highly Engaged",
+    "email": "jane@example.com",
+    "pmm": "PMM1"
+  }
+]
+```
+## 10. GET /events/:eventId/donors/export
+
+**Description:** Export saved donor list to a downloadable CSV file.
+
+**Returns:** 
+Triggers download of a .csv file with the following columns:
+- Donor Name
+
+- Total Donations
+
+- City
+
+- Medical Focus
+
+- Engagement
+
+- Email Address
+
+- PMM
