@@ -2,6 +2,13 @@
 
 This document explains how to interact with the backend event/donor management API. All routes return JSON unless otherwise stated.
 
+3/24 Testing Note:
+Problem existing:
+2. GET /events/search
+3. POST /events
+
+
+
 ## 1. GET /events
 
 Retrieve all events with computed status based on the number of saved donors:
