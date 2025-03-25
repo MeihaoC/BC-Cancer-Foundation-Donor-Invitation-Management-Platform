@@ -35,11 +35,16 @@ Returns:
 ```
 ## 2.  GET /events/search
 
-Search events with optional filters:
+**Search events with optional filters:**
 
-name, city, focus, coordinator, fundraiser, status
+- name
+- city
+- focus
+- coordinator
+- fundraiser
+- status
 
-Returns: Events matching the filter, each with computed status.
+**Returns**: Events matching the filter, each with computed status.
 
 ## 3. POST /events
 
