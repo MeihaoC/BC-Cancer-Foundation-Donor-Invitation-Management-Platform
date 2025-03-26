@@ -49,7 +49,7 @@ function SingleEventPage() {
     const [tempDonorList, setTempDonorList] = useState([]);
 
     // States for tab switching and filtering in generation/adding mode
-    const [activeTab, setActiveTab] = useState("byName");
+    const [activeTab, setActiveTab] = useState("byFilters");
     const [searchName, setSearchName] = useState("");
     const [filterCity, setFilterCity] = useState("");
     const [filterMedicalFocus, setFilterMedicalFocus] = useState("");
@@ -58,6 +58,10 @@ function SingleEventPage() {
     // Recommended donor lists (for generation or adding donors)
     const [bestMatchedDonors, setBestMatchedDonors] = useState([]);
     const [additionalDonors, setAdditionalDonors] = useState([]);
+    const [wasBestMatchedDonors, setWasBestMatchedDonors] = useState([]);
+    const [wasAdditionalDonors, setWasAdditionalDonors] = useState([]);
+    const [matchedDonors, setMatchedDonors] = useState([]);
+    const [wasMatchedDonors, setWasMatchedDonors] = useState([]);
 
     // fetch event and donors data
     useEffect(() => {
@@ -144,7 +148,7 @@ function SingleEventPage() {
     const handleGenerateDonorList = () => {
         setIsGenerating(true);
         setTempDonorList([]);
-        setActiveTab("byName");
+        setActiveTab("byFilters");
         generateRecommendedDonors();
     };
 
@@ -155,6 +159,8 @@ function SingleEventPage() {
         const capacity = getCapacity();
         setBestMatchedDonors(defaultDonors.slice(0, capacity));
         setAdditionalDonors(defaultDonors.slice(capacity, capacity * 2));
+        setWasAdditionalDonors([]);
+        setWasBestMatchedDonors([]);
     };
 
     // "By Name" search for generation/adding
@@ -163,9 +169,14 @@ function SingleEventPage() {
         const filtered = defaultDonors.filter(donor =>
             `${donor.first_name} ${donor.last_name}`.toLowerCase().includes(searchName.toLowerCase())
         );
-        const capacity = getCapacity();
-        setBestMatchedDonors(filtered.slice(0, capacity));
-        setAdditionalDonors(filtered.slice(capacity, capacity * 2));
+        if (filtered.length > 0) {
+            setMatchedDonors(filtered);
+        } else {
+            // Clear matched donors if no results
+            setMatchedDonors([]);
+            setWasMatchedDonors([]);
+            alert("No donors found matching the search criteria.");
+        }
     };
 
     // "By Filters" search for generation/adding
@@ -186,12 +197,41 @@ function SingleEventPage() {
     const handleAddDonor = (donor) => {
         if (!tempDonorList.some(d => d.id === donor.id)) {
             setTempDonorList([...tempDonorList, donor]);
+
+            // filter out the selected donor from the recommended lists
+            if (bestMatchedDonors.some(d => d.id === donor.id)) {
+                setWasBestMatchedDonors([...wasBestMatchedDonors, donor]);
+                setBestMatchedDonors(bestMatchedDonors.filter(d => d.id !== donor.id));
+            } 
+            if (additionalDonors.some(d => d.id === donor.id)) {
+                setWasAdditionalDonors([...wasAdditionalDonors, donor]);
+                setAdditionalDonors(additionalDonors.filter(d => d.id !== donor.id));
+            }
+            if (matchedDonors.some(d => d.id === donor.id)) {
+                setWasMatchedDonors([...wasMatchedDonors, donor]);
+                setMatchedDonors(matchedDonors.filter(d => d.id !== donor.id));
+            }
         }
     };
 
     // Remove a donor from the temporary list
     const handleRemoveDonor = (id) => {
         setTempDonorList(tempDonorList.filter(d => d.id !== id));
+        if (wasBestMatchedDonors.some(d => d.id === id)) {
+            const donor = wasBestMatchedDonors.find(d => d.id === id);
+            setBestMatchedDonors([...bestMatchedDonors, donor]);
+            setWasBestMatchedDonors(wasBestMatchedDonors.filter(d => d.id !== id));
+        }
+        if (wasAdditionalDonors.some(d => d.id === id)) {
+            const donor = wasAdditionalDonors.find(d => d.id === id);
+            setAdditionalDonors([...additionalDonors, donor]);
+            setWasAdditionalDonors(wasAdditionalDonors.filter(d => d.id !== id));
+        }
+        if (wasMatchedDonors.some(d => d.id === id)) {
+            const donor = wasMatchedDonors.find(d => d.id === id);
+            setMatchedDonors([...matchedDonors, donor]);
+            setWasMatchedDonors(wasMatchedDonors.filter(d => d.id !== id));
+        }
     };
 
     // Cancel generating a new list
@@ -301,16 +341,16 @@ function SingleEventPage() {
                         <h2>Generate Donor List</h2>
                         <div className="tab-container">
                             <button
-                                className={activeTab === "byName" ? "active" : ""}
-                                onClick={() => setActiveTab("byName")}
-                            >
-                                By Name
-                            </button>
-                            <button
                                 className={activeTab === "byFilters" ? "active" : ""}
                                 onClick={() => setActiveTab("byFilters")}
                             >
                                 By Filters
+                            </button>
+                            <button
+                                className={activeTab === "byName" ? "active" : ""}
+                                onClick={() => setActiveTab("byName")}
+                            >
+                                By Name
                             </button>
                         </div>
                         {activeTab === "byName" && (
@@ -351,101 +391,145 @@ function SingleEventPage() {
                             </div>
                         )}
 
-                        <h3>Best Matched Donors</h3>
-                        <table className="donor-table">
-                            <thead>
-                                <tr>
-                                    <th>Donor Name</th>
-                                    <th>Total Donations</th>
-                                    <th>City</th>
-                                    <th>Medical Focus</th>
-                                    <th>Engagement</th>
-                                    <th>Email</th>
-                                    <th>PMM</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {bestMatchedDonors.map(donor => (
-                                    <tr key={donor.id}>
-                                        <td>{donor.first_name} {donor.last_name}</td>
-                                        <td>{donor.total_donation}</td>
-                                        <td>{donor.city}</td>
-                                        <td>{donor.medical_focus}</td>
-                                        <td>{donor.engagement}</td>
-                                        <td>{donor.email}</td>
-                                        <td>{donor.pmm}</td>
-                                        <td>
-                                            <button onClick={() => handleAddDonor(donor)}>Add to List</button>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                        {activeTab === "byName" && matchedDonors.length > 0 && (
+                            <div className="donor-matched-by-name">
+                                <h3>Matched Donors</h3>
+                                <table className="donor-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Donor Name</th>
+                                            <th>Total Donations</th>
+                                            <th>City</th>
+                                            <th>Medical Focus</th>
+                                            <th>Engagement</th>
+                                            <th>Email</th>
+                                            <th>PMM</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {matchedDonors.map(donor => (
+                                            <tr key={donor.id}>
+                                                <td>{donor.first_name} {donor.last_name}</td>
+                                                <td>{donor.total_donation}</td>
+                                                <td>{donor.city}</td>
+                                                <td>{donor.medical_focus}</td>
+                                                <td>{donor.engagement}</td>
+                                                <td>{donor.email}</td>
+                                                <td>{donor.pmm}</td>
+                                                <td>
+                                                    <button onClick={() => handleAddDonor(donor)}>Add to List</button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
 
-                        <h3>Additional Suitable Donors</h3>
-                        <table className="donor-table">
-                            <thead>
-                                <tr>
-                                    <th>Donor Name</th>
-                                    <th>Total Donations</th>
-                                    <th>City</th>
-                                    <th>Medical Focus</th>
-                                    <th>Engagement</th>
-                                    <th>Email</th>
-                                    <th>PMM</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {additionalDonors.map(donor => (
-                                    <tr key={donor.id}>
-                                        <td>{donor.first_name} {donor.last_name}</td>
-                                        <td>{donor.total_donation}</td>
-                                        <td>{donor.city}</td>
-                                        <td>{donor.medical_focus}</td>
-                                        <td>{donor.engagement}</td>
-                                        <td>{donor.email}</td>
-                                        <td>{donor.pmm}</td>
-                                        <td>
-                                            <button onClick={() => handleAddDonor(donor)}>Add to List</button>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                        {activeTab === "byFilters" && (
+                            <div className="donor-recommended">
+                                <h3>Best Matched Donors</h3>
+                                <table className="donor-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Donor Name</th>
+                                            <th>Total Donations</th>
+                                            <th>City</th>
+                                            <th>Medical Focus</th>
+                                            <th>Engagement</th>
+                                            <th>Email</th>
+                                            <th>PMM</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {bestMatchedDonors.map(donor => (
+                                            <tr key={donor.id}>
+                                                <td>{donor.first_name} {donor.last_name}</td>
+                                                <td>{donor.total_donation}</td>
+                                                <td>{donor.city}</td>
+                                                <td>{donor.medical_focus}</td>
+                                                <td>{donor.engagement}</td>
+                                                <td>{donor.email}</td>
+                                                <td>{donor.pmm}</td>
+                                                <td>
+                                                    <button onClick={() => handleAddDonor(donor)}>Add to List</button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
 
-                        <h3>Temporary Donor List</h3>
-                        <table className="donor-table">
-                            <thead>
-                                <tr>
-                                    <th>Donor Name</th>
-                                    <th>Total Donations</th>
-                                    <th>City</th>
-                                    <th>Medical Focus</th>
-                                    <th>Engagement</th>
-                                    <th>Email</th>
-                                    <th>PMM</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {tempDonorList.map(donor => (
-                                    <tr key={donor.id}>
-                                        <td>{donor.first_name} {donor.last_name}</td>
-                                        <td>{donor.total_donation}</td>
-                                        <td>{donor.city}</td>
-                                        <td>{donor.medical_focus}</td>
-                                        <td>{donor.engagement}</td>
-                                        <td>{donor.email}</td>
-                                        <td>{donor.pmm}</td>
-                                        <td>
-                                            <button onClick={() => handleRemoveDonor(donor.id)}>Delete</button>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                <h3>Additional Suitable Donors</h3>
+                                <table className="donor-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Donor Name</th>
+                                            <th>Total Donations</th>
+                                            <th>City</th>
+                                            <th>Medical Focus</th>
+                                            <th>Engagement</th>
+                                            <th>Email</th>
+                                            <th>PMM</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {additionalDonors.map(donor => (
+                                            <tr key={donor.id}>
+                                                <td>{donor.first_name} {donor.last_name}</td>
+                                                <td>{donor.total_donation}</td>
+                                                <td>{donor.city}</td>
+                                                <td>{donor.medical_focus}</td>
+                                                <td>{donor.engagement}</td>
+                                                <td>{donor.email}</td>
+                                                <td>{donor.pmm}</td>
+                                                <td>
+                                                    <button onClick={() => handleAddDonor(donor)}>Add to List</button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
+
+                        { tempDonorList.length > 0 && (
+                            <div>
+                                <h3>Temporary Donor List</h3>
+                                <table className="donor-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Donor Name</th>
+                                            <th>Total Donations</th>
+                                            <th>City</th>
+                                            <th>Medical Focus</th>
+                                            <th>Engagement</th>
+                                            <th>Email</th>
+                                            <th>PMM</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {tempDonorList.map(donor => (
+                                            <tr key={donor.id}>
+                                                <td>{donor.first_name} {donor.last_name}</td>
+                                                <td>{donor.total_donation}</td>
+                                                <td>{donor.city}</td>
+                                                <td>{donor.medical_focus}</td>
+                                                <td>{donor.engagement}</td>
+                                                <td>{donor.email}</td>
+                                                <td>{donor.pmm}</td>
+                                                <td>
+                                                    <button onClick={() => handleRemoveDonor(donor.id)}>Delete</button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
 
                         <div className="donor-edit-actions">
                             <button onClick={handleCancelGenerate}>Cancel</button>
