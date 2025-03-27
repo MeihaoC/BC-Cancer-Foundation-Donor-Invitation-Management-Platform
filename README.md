@@ -7,6 +7,8 @@ Problem existing:
 2. GET /events/search
 3. POST /events
 
+3/26 Testing Note:
+Previously existing problems were all fixed, and README file was also updated.
 
 
 ## 1. GET /events
