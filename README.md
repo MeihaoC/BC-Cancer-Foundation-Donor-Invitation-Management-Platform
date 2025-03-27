@@ -169,49 +169,62 @@ Each donor info includes:
 }
 ```
 ## 5. POST /events/:eventId/donors/add
-Description:
-Temporarily add a donor to the candidate list for an event.
+Frontend Action: Temporarily add the donor before saving.
 
-Request Body:
-```json
-{
-  "donorId": 101
-}
+API Called:
 ```
-Returns:
-```json
-{ "message": "Donor temporarily added" }
+POST /api/events/:eventId/donors/add
 ```
+When to use:
+- User selects a suggested or searched donor to add to the candidate list.
+- No need to immediately persist to database.
+
+What frontend does:
+- Calls this endpoint with donorId.
+- Updates the "current donor list UI" to show that the donor has been added.
 
 ## 6. POST /events/:eventId/donors/remove
+Frontend Action: Temporarily remove the donor before saving.
 
-**Description:** Temporarily remove a donor from the candidate list.
+API Called:
+```
+POST /api/events/:eventId/donors/remove
+```
+When to use:
+- User wants to remove a donor from the event’s current selection.
 
-**Request Body:**
-```json
-{
-  "donorId": 101
-}
-```
-**Returns:**
-```json
-{ "message": "Donor temporarily removed" }
-```
+What frontend does:
+- Calls this with donorId.
+- UI reflects that the donor is no longer selected.
+
 ## 7. POST /events/:eventId/donors/save
-**Description:** Save the current candidate donor list to the database for the event. 
+Frontend Action: Persists the donor list changes to the database.
 
-**Returns:**
-```json
-{ "message": "Donor list saved" }
+API Called:
 ```
+POST /api/events/:eventId/donors/save
+```
+When to use:
+- After finishing all edits (add/remove).
+- Save button is pressed.
+
+What frontend does:
+- Sends a request with just the event ID (no need for donor list—server uses tempDonorEdits).
+- Optionally shows success toast/message and reloads donor list.
 
 ## 8. POST /events/:eventId/donors/cancel
-**Description:** Cancel all unsaved donor changes for the event. 
+Frontend Action: Discards all unsaved edits.
 
-**Returns:**
-```json
-{ "message": "Donor edits canceled" }
+API Called:
 ```
+POST /api/events/:eventId/donors/cancel
+```
+When to use:
+- User decides not to save changes and wants to go back to the last saved state.
+
+What frontend does:
+- Calls the endpoint.
+- Reloads the original saved donor list from the server (via GET /events/:eventId/suggest-donors or similar).
 
 ## 9. GET /events/:eventId/donors/search
 **Description:** Search for a donor by name and return those not already saved or added to the current candidate list (but includes deleted ones). 
