@@ -2,10 +2,10 @@ const express = require('express');
 const router = express.Router();
 const eventController = require('../controllers/eventController');
 
-router.post('/login', eventController.login);
-router.get('/events', eventController.getEvents);
-router.get('/events/search', eventController.searchEvents);
-router.post('/events', eventController.createEvent);
+router.post('/login', eventController.login); // Done
+router.get('/events', eventController.getEvents); // Done
+router.get('/events/search', eventController.searchEvents); // Done
+router.post('/events', eventController.createEvent); // Done
 router.get('/events/:eventId/suggest-donors', eventController.suggestDonors);
 router.post('/events/:eventId/donors/add', eventController.addDonorTemp);
 router.post('/events/:eventId/donors/remove', eventController.removeDonorTemp);
@@ -18,5 +18,6 @@ router.get('/events/:eventId/donors', eventController.getDonorListForEvent);
 router.get('/events/medical-focuses', eventController.getMedicalFocusNames);
 router.get('/events/users', eventController.getUserNames);
 router.get('/events/cities', eventController.getEventCities);
+router.delete('/events/:eventId', eventController.deleteEvent);
 
 module.exports = router;
