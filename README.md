@@ -2,12 +2,12 @@
 
 This document explains how to interact with the backend event/donor management API. All routes return JSON unless otherwise stated.
 
-3/24 Testing Note:
+3/24 Note:
 Problem existing:
-2. GET /events/search
-3. POST /events
+- GET /events/search
+- POST /events
 
-3/26 Testing Note:
+3/26 Note:
 - Login routes was added.
 - Previously existing problems were all fixed, and README file was also updated.
 - Edit Scenario: frontend integration suggestion
