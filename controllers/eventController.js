@@ -66,14 +66,58 @@ exports.searchEvents = async (req, res) => {
 };
 
 exports.createEvent = async (req, res) => {
-  const { name, date, city, location, medical_focus, capacity, coordinator, fundraiser, details } = req.body;
+  const {
+    name,
+    date,
+    city,
+    location,
+    medical_focus,
+    capacity,
+    coordinator,
+    fundraiser,
+    details
+  } = req.body;
+
   try {
-    await db.execute(`
-      INSERT INTO Event (name, date, city, location, medical_focus, capacity, coordinator, fundraiser, details)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `, [name, date, city, location, medical_focus, capacity, coordinator, fundraiser, details]);
+    const [[focusRow]] = await db.execute(
+      'SELECT id FROM Medical_Focus WHERE name = ?',
+      [medical_focus]
+    );
+    if (!focusRow) return res.status(400).json({ error: 'Invalid medical focus' });
+
+    const [[coordRow]] = await db.execute(
+      'SELECT id FROM User WHERE name = ?',
+      [coordinator]
+    );
+    if (!coordRow) return res.status(400).json({ error: 'Invalid coordinator' });
+
+    const [[fundRow]] = await db.execute(
+      'SELECT id FROM User WHERE name = ?',
+      [fundraiser]
+    );
+    if (!fundRow) return res.status(400).json({ error: 'Invalid fundraiser' });
+
+    await db.execute(
+      `INSERT INTO Event 
+        (name, date, location, city, medical_focus_id, capacity, coordinator_id, fundraiser_id, detailed_info, status)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        name,
+        date,
+        location,
+        city,
+        focusRow.id,
+        capacity,
+        coordRow.id,
+        fundRow.id,
+        details,
+        'Not Started'
+      ]
+    );
+
     const [[{ id }]] = await db.execute('SELECT LAST_INSERT_ID() AS id');
     res.json({ message: 'Event created successfully', eventId: id });
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to create event' });
