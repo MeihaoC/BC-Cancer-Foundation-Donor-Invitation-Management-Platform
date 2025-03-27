@@ -411,3 +411,14 @@ exports.getEventCities = async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch cities' });
   }
 };
+
+exports.deleteEvent = async (req, res) => {
+  const { eventId } = req.params;
+  try {
+    await db.execute('DELETE FROM Event WHERE id = ?', [eventId]);
+    res.json({ message: 'Event deleted successfully' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to delete event' });
+  }
+};
