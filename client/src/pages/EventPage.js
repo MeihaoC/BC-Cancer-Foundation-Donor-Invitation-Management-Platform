@@ -8,10 +8,6 @@ import "../css/EventPage.css";
  * ---------------------
  * Handles displaying a list of events in a table format with pagination.
  * Allows users to add new events using a form with validation.
- * On future backend integration:
- *   - Replace static eventData state with fetched data from an API.
- *   - Send POST request with newEvent data on submit.
- *   - Omit "status" field from form since it is backend-controlled.
  */
 
 export default function EventPage() {
@@ -19,21 +15,24 @@ export default function EventPage() {
     const [searchTerm, setSearchTerm] = useState("");
 
     // Sample initial events list
-    const [eventData, setEventData] = useState([
-        { id: 1, eventName: "Cancer Research Gala", date: new Date("2025-04-10"), city: "Vancouver", medicalFocus: "Lung Cancer", capacity: 100, coordinator: "Alice Smith", fundraiser: "John Doe", status: "In Process" },
-        { id: 2, eventName: "Charity Marathon", date: new Date("2025-06-15"), city: "Toronto", medicalFocus: "General Research", capacity: 200, coordinator: "Bob Johnson", fundraiser: "Emily Davis", status: "Fully Invited" }
-    ]);
+    const [eventData, setEventData] = useState([]);
 
     // Pagination state
     const [currentPage, setCurrentPage] = useState(1);
     const eventsPerPage = 5;
 
+    // Calculate indices for current page events
+    const indexOfLastEvent = currentPage * eventsPerPage;
+    const indexOfFirstEvent = indexOfLastEvent - eventsPerPage;
+    const currentEvents = eventData.slice(indexOfFirstEvent, indexOfLastEvent);
+
     // Form visibility and data
     const [isFormVisible, setIsFormVisible] = useState(false);
     const [newEvent, setNewEvent] = useState({
         eventName: "",
-        date: null,
+        date: "",
         city: "",
+        location:"",
         medicalFocus: "",
         capacity: "",
         coordinator: "",
@@ -64,33 +63,46 @@ export default function EventPage() {
     };
 
     // Submit handler: validate + append event
-    const handleAddEvent = () => {
+    const handleAddEvent = async () => {
         if (!validateForm()) return;
-        setEventData([
-            ...eventData,
-            {
-                id: eventData.length + 1,
-                ...newEvent,
-                date: new Date(newEvent.date),
-                capacity: Math.max(1, parseInt(newEvent.capacity, 10)),
-                status: "Not Started" // default
-            }
-        ]);
-
-        // Reset form
-        setIsFormVisible(false);
-        setNewEvent({
+      
+        // Map frontend fields to backend keys.
+        const payload = {
+          name: newEvent.eventName,
+          date: newEvent.date, 
+          location: newEvent.location,
+          city: newEvent.city,
+          medical_focus: newEvent.medicalFocus,
+          capacity: parseInt(newEvent.capacity, 10),
+          coordinator: newEvent.coordinator,
+          fundraiser: newEvent.fundraiser,
+          details: newEvent.description
+        };
+      
+        try {
+          const response = await axios.post("http://localhost:5001/api/events", payload);
+          console.log("Event added:", response.data);
+          // After successful creation, refresh the events list.
+          await fetchAllEvents();
+          // Reset the form and hide it.
+          setIsFormVisible(false);
+          setNewEvent({
             eventName: "",
-            date: null,
+            date: "",
             city: "",
+            location: "", 
             medicalFocus: "",
             capacity: "",
             coordinator: "",
             fundraiser: "",
             description: ""
-        });
-        setErrors({});
-    };
+          });
+          setErrors({});
+        } catch (err) {
+          console.error(err);
+          alert(err.response?.data?.error || err.response?.data?.message || err.message);
+        }
+      };
 
     // Search handler: search events by name
     const handleSearch = async (e) => {
@@ -115,17 +127,20 @@ export default function EventPage() {
     };
 
     // fetch all events from the backend
-    useEffect (() => {
-        axios.get("http://localhost:5001/api/events")
-        .then((response) => {
+    const fetchAllEvents = async () => {
+        try {
+            const response = await axios.get("http://localhost:5001/api/events");
             console.log('Events fetched:', response.data);
             setEventData(response.data);
-        })
-        .catch((err) => {
+        } catch (err) {
             console.error(err);
             alert(err.response?.data?.message || err.message);
-        })
-    }, []);
+        }
+    };
+
+    useEffect(() => {
+        fetchAllEvents();
+      }, []);
 
     return (
         <div className="event-container">
@@ -158,7 +173,7 @@ export default function EventPage() {
                     </tr>
                 </thead>
                 <tbody>
-                    {eventData.map((event) => (
+                    {currentEvents.map((event) => (
                         <tr key={event.id}>
                             <td className="event-name">
                                 <Link to={`/events/${event.id}`} className="event-link">
