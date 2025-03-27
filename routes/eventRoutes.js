@@ -18,5 +18,6 @@ router.get('/events/:eventId/donors', eventController.getDonorListForEvent);
 router.get('/events/medical-focuses', eventController.getMedicalFocusNames);
 router.get('/events/users', eventController.getUserNames);
 router.get('/events/cities', eventController.getEventCities);
+router.delete('/events/:eventId', eventController.deleteEvent);
 
 module.exports = router;
