@@ -41,17 +41,45 @@ Returns:
 ]
 ```
 ## 2.  GET /events/search
+**Search for events by typing any keyword in a single input. Search is case-insensitive and uses partial match. The backend will match it against:**
 
-**Search events with optional filters:**
+- Event name
+- City
+- Medical Focus
+- Coordinator name
+- Fundraiser name
+- Status (Not Started, In Process, Fully Invited)
 
-- name
-- city
-- focus
-- coordinator
-- fundraiser
-- status
-
-**Returns**: Events matching the filter, each with computed status.
+**Example Request:**
+```
+curl "http://localhost:5001/api/events/search?q=Vancouver"
+```
+**Success Response:**
+```
+[
+  {
+    "id": 1,
+    "name": "Brain Cancer Walk",
+    "date": "2025-03-15T00:00:00.000Z",
+    "location": "Stanley Park",
+    "city": "Vancouver",
+    "medical_focus_id": 1,
+    "capacity": 20,
+    "coordinator_id": 2,
+    "fundraiser_id": 4,
+    "detailed_info": "Annual fundraiser walk",
+    "status": "Fully Invited",
+    "medical_focus": "Brain Cancer",
+    "coordinator": "Alice Johnson",
+    "fundraiser": "Bob Smith"
+  }
+]
+```
+Error Response:
+- 500 Internal Server Error
+```
+{ "error": "Failed to search events" }
+```
 
 ## 3. POST /events
 Create a new event by providing details like name, date, location, city, medical focus, capacity, coordinator, and fundraiser. This route automatically looks up the IDs for the medical focus, coordinator, and fundraiser based on their names.
