@@ -12,6 +12,11 @@ Problem existing:
 - Previously existing problems were all fixed, and README file was also updated.
 - Edit Scenario: frontend integration suggestion
 
+3/27 Note:
+Add routes:
+- GET /api/events/:eventId/details
+- GET /api/events/:eventId/donors
+
 
 ## 1. GET /events
 
