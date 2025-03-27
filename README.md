@@ -315,8 +315,7 @@ Triggers download of a .csv file with the following columns:
 
 ## Edit Scenario
 
-**How the routes work in this scenario** 
-**Temporary Edits Tracking (tempDonorEdits)**  
+**How the routes work in this scenario**   
 The backend uses an in-memory Map called tempDonorEdits to track:
 - added: donor IDs added to the current session
 - removed: donor IDs removed from the saved list during editing
