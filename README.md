@@ -309,8 +309,60 @@ Triggers download of a .csv file with the following columns:
   "error": "Login failed"
 }
 ```
+## 12. GET /api/events/:eventId/details
 
+**Description:**
+Fetches full information of a specific event by its ID, including name, date, location, city, medical focus, capacity, coordinator, fundraiser, and detailed info.
 
+**Request Parameters:**
+- eventId (path param) – ID of the event to retrieve
+
+**Response:**
+```
+{
+  "name": "Brain Cancer Walk",
+  "date": "2025-12-25",
+  "location": "Downtown Vancouver",
+  "city": "Vancouver",
+  "medical_focus": "Brain Cancer",
+  "capacity": 10,
+  "coordinator": "Alice Johnson",
+  "fundraiser": "Bob Smith",
+  "details": "A walk to raise awareness for brain cancer."
+}
+```
+
+## 13. GET /api/events/:eventId/donors
+
+**Description:**
+Returns a list of donors saved to a specific event, including donor name, city, medical focus (as names), total donation, engagement, email, and PMM.
+
+**Request Parameters:**
+- eventId (path param) – ID of the event to retrieve donor list for
+
+**Response Example:**
+```
+[
+  {
+    "name": "Donor One",
+    "total_donation": 250000,
+    "city": "Vancouver",
+    "medical_focus": "Brain Cancer",
+    "engagement": "Highly Engaged",
+    "email": "donor1@example.com",
+    "pmm": "PMM1"
+  },
+  {
+    "name": "Donor Two",
+    "total_donation": 230000,
+    "city": "Vancouver",
+    "medical_focus": "Brain Cancer",
+    "engagement": "Highly Engaged",
+    "email": "donor2@example.com",
+    "pmm": "PMM2"
+  }
+]
+```
 
 
 ## Edit Scenario
