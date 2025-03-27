@@ -313,6 +313,71 @@ Triggers download of a .csv file with the following columns:
 }
 ```
 
+***Edit Scenario:***
 
+**How the routes work in this scenario**
+**Temporary Edits Tracking (tempDonorEdits)**
+The backend uses an in-memory Map called tempDonorEdits to track:
+- added: donor IDs added to the current session
+- removed: donor IDs removed from the saved list during editing
+
+**Routes affected:**
+1. Remove a saved donor	POST /events/:eventId/donors/remove	Adds donor to removed, removes from added if exists
+2. Generate suggested donors	GET /events/:eventId/suggest-donors	Suggests donors by excluding saved & added, but including removed
+3. Search donor by name	GET /events/:eventId/donors/search?name=...	Same logic: includes removed donors, excludes added/saved
+4. Save list	POST /events/:eventId/donors/save	Applies all changes from the temporary state and clears it
+
+**Example Workflow**  
+Before editing:
+- Event 1 has saved donors [1, 2, 3]
+
+While editing:
+- User removes donor 2 → goes into removed
+- User adds donor 4 → goes into added
+- Calls /suggest-donors → donors 1 and 3 excluded (still saved), 2 is included again (was removed), 4 is excluded (already added)
+
+
+**Frontend Integration**
+Step-by-step logic for frontend:
+1.When editing starts
+- No need to call any API, just display current donor list.
+2. When a donor is deleted
+```
+await fetch(`/api/events/${eventId}/donors/remove`, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ donorId })
+});
+```
+3. To generate new suggestions (for adding new donors)
+```
+const res = await fetch(`/api/events/${eventId}/suggest-donors`);
+const { best, additional } = await res.json();
+```
+4. To search by name
+```
+const res = await fetch(`/api/events/${eventId}/donors/search?name=Alice`);
+const matches = await res.json();
+```
+5. To add a donor temporarily
+```
+await fetch(`/api/events/${eventId}/donors/add`, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ donorId })
+});
+```
+6. To save the donor list
+```
+await fetch(`/api/events/${eventId}/donors/save`, {
+  method: 'POST'
+});
+```
+7. To cancel editing
+```
+await fetch(`/api/events/${eventId}/donors/cancel`, {
+  method: 'POST'
+});
+```
 
 
