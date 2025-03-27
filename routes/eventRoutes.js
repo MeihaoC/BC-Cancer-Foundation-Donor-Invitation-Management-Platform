@@ -15,5 +15,8 @@ router.get('/events/:eventId/donors/search', eventController.searchDonorByName);
 router.get('/events/:eventId/donors/export', eventController.exportDonorsCSV);
 router.get('/events/:eventId/details', eventController.getEventDetails);
 router.get('/events/:eventId/donors', eventController.getDonorListForEvent);
+router.get('/events/medical-focuses', eventController.getMedicalFocusNames);
+router.get('/events/users', eventController.getUserNames);
+router.get('/events/cities', eventController.getEventCities);
 
 module.exports = router;
