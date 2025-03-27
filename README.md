@@ -17,7 +17,7 @@ Problem existing:
 
 Retrieve all events with computed status based on the number of saved donors:
 
-Status logic:
+**Status logic:**
 
 - Not Started: 0 donors assigned
 
@@ -25,24 +25,26 @@ Status logic:
 
 - Fully Invited: capacity number of donors assigned
 
-Returns:
-
+**Request:**
+```
+GET /api/events
+```
+**Returns a list of events with the following fields:**
 ```
 [
   {
-    "id": 1,
-    "name": "Event A",
+    "name": "Brain Cancer Awareness Walk",
+    "date": "2024-06-15T07:00:00.000Z",
     "city": "Vancouver",
-    "date": "2025-04-01",
-    "location": "Conference Hall",
     "medical_focus": "Brain Cancer",
-    "capacity": 10,
-    "coordinator": "Alice",
-    "fundraiser": "Bob",
-    "status": "In Process"
+    "capacity": 30,
+    "coordinator": "Alice Johnson",
+    "fundraiser": "Bob Smith",
+    "status": "Not Started"
   },
   ...
 ]
+
 ```
 ## 2.  GET /events/search
 **Search for events by typing any keyword in a single input. Search is case-insensitive and uses partial match. The backend will match it against:**
@@ -62,20 +64,14 @@ curl "http://localhost:5001/api/events/search?q=Vancouver"
 ```
 [
   {
-    "id": 1,
-    "name": "Brain Cancer Walk",
-    "date": "2025-03-15T00:00:00.000Z",
-    "location": "Stanley Park",
+    "name": "Brain Cancer Awareness Walk",
+    "date": "2024-06-15T07:00:00.000Z",
     "city": "Vancouver",
-    "medical_focus_id": 1,
-    "capacity": 20,
-    "coordinator_id": 2,
-    "fundraiser_id": 4,
-    "detailed_info": "Annual fundraiser walk",
-    "status": "Fully Invited",
     "medical_focus": "Brain Cancer",
+    "capacity": 30,
     "coordinator": "Alice Johnson",
-    "fundraiser": "Bob Smith"
+    "fundraiser": "Bob Smith",
+    "status": "Not Started"
   }
 ]
 ```
