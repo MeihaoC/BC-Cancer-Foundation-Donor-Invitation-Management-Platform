@@ -19,6 +19,7 @@ Add routes:
 - GET /api/events/medical-focuses
 - GET /api/events/users
 - GET /api/events/cities
+- DELETE /api/events/:eventId
 
 
 ## 1. GET /events
@@ -405,6 +406,29 @@ Retrieves a list of distinct cities from the Event table, sorted alphabetically.
   "Richmond",
   "Vancouver"
 ]
+```
+## 17. DELETE /api/events/:eventId
+**Description:**
+Deletes an event by its ID from the database. Also automatically removes related entries in Event_Donor due to ON DELETE CASCADE.
+
+**Request Parameters:**
+- eventId (path parameter): The ID of the event to delete.
+
+**Example Request:**
+```
+curl -X DELETE http://localhost:5001/api/events/23
+```
+**Successful Response:**
+```
+{
+  "message": "Event deleted successfully"
+}
+```
+**Error Response:**
+```
+{
+  "error": "Failed to delete event"
+}
 ```
 
 ## Edit Scenario
