@@ -10,6 +10,7 @@ Problem existing:
 3/26 Testing Note:
 - Login routes was added.
 - Previously existing problems were all fixed, and README file was also updated.
+- Edit Scenario: frontend integration suggestion
 
 
 ## 1. GET /events
