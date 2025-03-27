@@ -416,10 +416,10 @@ The backend uses an in-memory Map called tempDonorEdits to track:
 - removed: donor IDs removed from the saved list during editing
 
 **Routes affected:**
-1. Remove a saved donor	POST /events/:eventId/donors/remove	Adds donor to removed, removes from added if exists
-2. Generate suggested donors	GET /events/:eventId/suggest-donors	Suggests donors by excluding saved & added, but including removed
-3. Search donor by name	GET /events/:eventId/donors/search?name=...	Same logic: includes removed donors, excludes added/saved
-4. Save list	POST /events/:eventId/donors/save	Applies all changes from the temporary state and clears it
+1. Remove a saved donor: POST /events/:eventId/donors/remove	; Adds donor to removed, removes from added if exists
+2. Generate suggested donors: GET /events/:eventId/suggest-donors	; Suggests donors by excluding saved & added, but including removed
+3. Search donor by name: GET /events/:eventId/donors/search?name=...	; Same logic: includes removed donors, excludes added/saved
+4. Save list: POST /events/:eventId/donors/save	; Applies all changes from the temporary state and clears it
 
 **Example Workflow**  
 
