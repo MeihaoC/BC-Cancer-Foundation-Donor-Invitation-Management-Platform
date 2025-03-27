@@ -116,19 +116,23 @@ Returns (on failure):
 
 ## 4. GET /events/:eventId/suggest-donors
 
-Generate two lists of suggested donors (based on match logic):
+**Generates two donor lists for a specific event based on matching logic:**
 
-- best (capacity size)
+- best: Top matches (up to the event's capacity)
 
-- additional (extra matching donors)
+- additional: Extra matches (up to the event's capacity again)
 
-Matching criteria:
+**URL Params:**
+
+- eventId (required): ID of the event
+
+**Matching criteria:**
 
 - Default filters: Event city, medical focus, engagement = "Highly Engaged"
 
 - Query Parameters (optional): city, medical_focus, engagement
 
-Donor must not be:
+**Donor must not be:**
 
 - already saved for the event
 
@@ -136,7 +140,15 @@ Donor must not be:
 
 Donor can be included if previously deleted from the temp list 
 
-Returns:
+**Example Request:**
+```
+curl http://localhost:5001/api/events/1/suggest-donors
+```
+**Example With Custom Filters:**
+```
+curl "http://localhost:5001/api/events/1/suggest-donors?city=Vancouver&medical_focus=Brain%20Cancer&engagement=Medium"
+```
+**Returns:**
 ```
 {
   "best": [ { donor fields... }, ... ],
