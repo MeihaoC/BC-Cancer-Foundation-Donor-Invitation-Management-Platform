@@ -8,6 +8,21 @@ function getStatus(donorCount, capacity) {
 
 const tempDonorEdits = new Map();
 
+exports.login = async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    const [users] = await db.execute('SELECT * FROM User WHERE email = ?', [email]);
+    const user = users[0];
+    if (!user || user.password !== password) {
+      return res.status(401).json({ error: 'Invalid email or password' });
+    }
+    res.json({ message: 'Login successful', user: { id: user.id, name: user.name, email: user.email } });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Login failed' });
+  }
+};
+
 exports.getEvents = async (req, res) => {
   try {
     const [events] = await db.execute('SELECT * FROM Event');
