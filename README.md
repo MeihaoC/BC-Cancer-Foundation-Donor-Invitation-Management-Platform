@@ -54,27 +54,33 @@ Returns:
 **Returns**: Events matching the filter, each with computed status.
 
 ## 3. POST /events
+Create a new event by providing details like name, date, location, city, medical focus, capacity, coordinator, and fundraiser. This route automatically looks up the IDs for the medical focus, coordinator, and fundraiser based on their names.
 
-Create a new event.
 Request body:
 ```json
 {
-  "name": "Event A",
-  "date": "2025-04-01",
+  "name": "Fundraiser Gala",
+  "date": "2025-04-10",
   "city": "Vancouver",
-  "location": "Conference Center",
+  "location": "Downtown Center",
   "medical_focus": "Brain Cancer",
-  "capacity": 10,
-  "coordinator": "Alice",
-  "fundraiser": "Bob",
-  "details": "Event details here."
+  "capacity": 4,
+  "coordinator": "Alice Johnson",
+  "fundraiser": "Bob Smith",
+  "details": "Annual fundraiser"
 }
 ``` 
-Returns:
+Returns (on success):
 ```json
 {
   "message": "Event created successfully",
-  "eventId": 2
+  "eventId": 1
+}
+```
+Returns (on failure):
+```json
+{
+  "error": "Failed to create event"
 }
 ```
 
