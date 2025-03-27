@@ -207,3 +207,50 @@ Triggers download of a .csv file with the following columns:
 - Email Address
 
 - PMM
+
+## 11. POST /api/login
+
+**Description:** Authenticate a user using email and password.
+
+**Request:**
+- Method: POST
+- URL: /api/login
+- Headers:
+```
+  Content-Type: application/json
+```
+- Body (JSON):
+```json
+{
+  "email": "alice@example.com",
+  "password": "password123"
+}
+```
+**Response:**
+- Success (200):
+```
+{
+  "message": "Login successful",
+  "user": {
+    "id": 1,
+    "name": "Alice Johnson",
+    "email": "alice@example.com"
+  }
+}
+```
+- Failure (401):
+```
+{
+  "error": "Invalid email or password"
+}
+```
+- Failure (500):
+```
+{
+  "error": "Login failed"
+}
+```
+
+
+
+
