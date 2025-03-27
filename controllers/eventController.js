@@ -39,24 +39,44 @@ exports.getEvents = async (req, res) => {
 exports.searchEvents = async (req, res) => {
   const { q } = req.query;
   try {
-    let query = 'SELECT * FROM Event WHERE 1=1';
+    let query = `
+      SELECT e.*, 
+             mf.name AS medical_focus, 
+             u1.name AS coordinator, 
+             u2.name AS fundraiser
+      FROM Event e
+      JOIN Medical_Focus mf ON e.medical_focus_id = mf.id
+      JOIN User u1 ON e.coordinator_id = u1.id
+      JOIN User u2 ON e.fundraiser_id = u2.id
+      WHERE 1=1
+    `;
     const params = [];
 
     if (q) {
-      query += ` AND (
-        name LIKE ? OR
-        city LIKE ? OR
-        medical_focus LIKE ? OR
-        coordinator LIKE ? OR
-        fundraiser LIKE ?
-      )`;
-      for (let i = 0; i < 5; i++) params.push(`%${q}%`);
+      query += `
+        AND (
+          e.name LIKE ? OR
+          e.city LIKE ? OR
+          mf.name LIKE ? OR
+          u1.name LIKE ? OR
+          u2.name LIKE ? OR
+          e.status LIKE ?
+        )
+      `;
+      for (let i = 0; i < 6; i++) params.push(`%${q}%`);
     }
 
     const [events] = await db.execute(query, params);
-    const [donorCounts] = await db.execute('SELECT event_id, COUNT(*) AS count FROM Event_Donor GROUP BY event_id');
+
+    const [donorCounts] = await db.execute(
+      'SELECT event_id, COUNT(*) AS count FROM Event_Donor GROUP BY event_id'
+    );
     const countMap = Object.fromEntries(donorCounts.map(r => [r.event_id, r.count]));
-    const enriched = events.map(e => ({ ...e, status: getStatus(countMap[e.id] || 0, e.capacity) }));
+
+    const enriched = events.map(e => ({
+      ...e,
+      status: getStatus(countMap[e.id] || 0, e.capacity),
+    }));
 
     res.json(enriched);
   } catch (err) {
