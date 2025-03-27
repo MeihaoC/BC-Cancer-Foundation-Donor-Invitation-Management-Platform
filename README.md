@@ -316,7 +316,7 @@ Triggers download of a .csv file with the following columns:
 ## Edit Scenario
 
 **How the routes work in this scenario** 
-**Temporary Edits Tracking (tempDonorEdits)**
+**Temporary Edits Tracking (tempDonorEdits)**  
 The backend uses an in-memory Map called tempDonorEdits to track:
 - added: donor IDs added to the current session
 - removed: donor IDs removed from the saved list during editing
@@ -338,7 +338,7 @@ The backend uses an in-memory Map called tempDonorEdits to track:
 - Calls /suggest-donors → donors 1 and 3 excluded (still saved), 2 is included again (was removed), 4 is excluded (already added)
 
 
-**Frontend Integration**
+**Frontend Integration**  
 Step-by-step logic for frontend:  
 1.When editing starts
 - No need to call any API, just display current donor list.
