@@ -16,6 +16,9 @@ Problem existing:
 Add routes:
 - GET /api/events/:eventId/details
 - GET /api/events/:eventId/donors
+- GET /api/events/medical-focuses
+- GET /api/events/users
+- GET /api/events/cities
 
 
 ## 1. GET /events
@@ -368,7 +371,41 @@ Returns a list of donors saved to a specific event, including donor name, city, 
   }
 ]
 ```
+## 14. GET /api/events/medical-focuses
+**Description:**
+Retrieves a list of all unique medical focus names from the Medical_Focus table. Useful for populating dropdowns when creating an event or suggested donor lists.
 
+**Response Example:**
+```
+[
+  "Brain Cancer",
+  "Lung Cancer",
+  "Breast Cancer"
+]
+```
+## 15. GET /api/events/users
+**Description:**
+Retrieves all user names from the User table. Useful for coordinator and fundraiser dropdowns when creating an event.
+
+**Response Example:**
+```
+[
+  "Alice Johnson",
+  "Bob Lee"
+]
+```
+## 16. GET /api/events/cities
+**Description:**
+Retrieves a list of distinct cities from the Event table, sorted alphabetically. Useful for city dropdowns on the suggested donor list page.
+
+**Response Example:**
+```
+[
+  "Burnaby",
+  "Richmond",
+  "Vancouver"
+]
+```
 
 ## Edit Scenario
 
