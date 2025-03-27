@@ -343,7 +343,7 @@ The backend uses an in-memory Map called tempDonorEdits to track:
 
 
 **Frontend Integration**
-Step-by-step logic for frontend:
+Step-by-step logic for frontend:  
 1.When editing starts
 - No need to call any API, just display current donor list.
 2. When a donor is deleted
