@@ -25,10 +25,26 @@ exports.login = async (req, res) => {
 
 exports.getEvents = async (req, res) => {
   try {
-    const [events] = await db.execute('SELECT * FROM Event');
+    const [events] = await db.execute(`
+      SELECT 
+        e.name, e.date, e.city, e.capacity,
+        mf.name AS medical_focus,
+        c.name AS coordinator,
+        f.name AS fundraiser
+      FROM Event e
+      JOIN Medical_Focus mf ON e.medical_focus_id = mf.id
+      JOIN User c ON e.coordinator_id = c.id
+      JOIN User f ON e.fundraiser_id = f.id
+    `);
+
     const [donorCounts] = await db.execute('SELECT event_id, COUNT(*) AS count FROM Event_Donor GROUP BY event_id');
     const countMap = Object.fromEntries(donorCounts.map(r => [r.event_id, r.count]));
-    const enriched = events.map(e => ({ ...e, status: getStatus(countMap[e.id] || 0, e.capacity) }));
+
+    const enriched = events.map(e => ({
+      ...e,
+      status: getStatus(countMap[e.id] || 0, e.capacity)
+    }));
+
     res.json(enriched);
   } catch (err) {
     console.error(err);
@@ -40,7 +56,7 @@ exports.searchEvents = async (req, res) => {
   const { q } = req.query;
   try {
     let query = `
-      SELECT e.*, 
+      SELECT e.id, e.name, e.date, e.city, e.capacity, 
              mf.name AS medical_focus, 
              u1.name AS coordinator, 
              u2.name AS fundraiser
@@ -59,11 +75,10 @@ exports.searchEvents = async (req, res) => {
           e.city LIKE ? OR
           mf.name LIKE ? OR
           u1.name LIKE ? OR
-          u2.name LIKE ? OR
-          e.status LIKE ?
+          u2.name LIKE ?
         )
       `;
-      for (let i = 0; i < 6; i++) params.push(`%${q}%`);
+      for (let i = 0; i < 5; i++) params.push(`%${q}%`);
     }
 
     const [events] = await db.execute(query, params);
@@ -74,7 +89,13 @@ exports.searchEvents = async (req, res) => {
     const countMap = Object.fromEntries(donorCounts.map(r => [r.event_id, r.count]));
 
     const enriched = events.map(e => ({
-      ...e,
+      name: e.name,
+      date: e.date,
+      city: e.city,
+      medical_focus: e.medical_focus,
+      capacity: e.capacity,
+      coordinator: e.coordinator,
+      fundraiser: e.fundraiser,
       status: getStatus(countMap[e.id] || 0, e.capacity),
     }));
 
