@@ -379,3 +379,35 @@ exports.getDonorListForEvent = async (req, res) => {
   }
 };
 
+exports.getMedicalFocusNames = async (req, res) => {
+  try {
+    const [rows] = await db.execute('SELECT name FROM Medical_Focus');
+    const names = rows.map(row => row.name);
+    res.json(names);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to get medical focuses' });
+  }
+};
+
+exports.getUserNames = async (req, res) => {
+  try {
+    const [rows] = await db.execute('SELECT name FROM User');
+    const names = rows.map(row => row.name);
+    res.json(names);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to get user names' });
+  }
+};
+
+exports.getEventCities = async (req, res) => {
+  try {
+    const [rows] = await db.execute('SELECT DISTINCT city FROM Event ORDER BY city');
+    const cities = rows.map(row => row.city);
+    res.json(cities);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to fetch cities' });
+  }
+};
