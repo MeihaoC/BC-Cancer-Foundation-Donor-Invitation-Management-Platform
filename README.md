@@ -314,9 +314,12 @@ Triggers download of a .csv file with the following columns:
 }
 ```
 
-***Edit Scenario:***
 
-**How the routes work in this scenario**
+
+
+## Edit Scenario:
+
+**How the routes work in this scenario** 
 **Temporary Edits Tracking (tempDonorEdits)**
 The backend uses an in-memory Map called tempDonorEdits to track:
 - added: donor IDs added to the current session
@@ -329,10 +332,11 @@ The backend uses an in-memory Map called tempDonorEdits to track:
 4. Save list	POST /events/:eventId/donors/save	Applies all changes from the temporary state and clears it
 
 **Example Workflow**  
-Before editing:
+
+*Before editing:*
 - Event 1 has saved donors [1, 2, 3]
 
-While editing:
+*While editing:*
 - User removes donor 2 → goes into removed
 - User adds donor 4 → goes into added
 - Calls /suggest-donors → donors 1 and 3 excluded (still saved), 2 is included again (was removed), 4 is excluded (already added)
