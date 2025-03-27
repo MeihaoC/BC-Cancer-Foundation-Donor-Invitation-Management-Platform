@@ -5,7 +5,7 @@
 - Login was implemented and tested. (http://localhost:3000)
 - Get all events and search for events was implemented and tested. (http://localhost:3000/events)
 
-## 1. Setup
+## Setup
 
 1. Clone the repository
 ```bash
