@@ -326,3 +326,100 @@ exports.exportDonorsCSV = async (req, res) => {
     res.status(500).json({ error: 'Failed to export donor list' });
   }
 };
+
+exports.getEventDetails = async (req, res) => {
+  const { eventId } = req.params;
+  try {
+    const [[event]] = await db.execute(`
+      SELECT e.name, e.date, e.location, e.city, e.capacity, 
+             mf.name AS medical_focus, 
+             u1.name AS coordinator, 
+             u2.name AS fundraiser,
+             e.detailed_info
+      FROM Event e
+      JOIN Medical_Focus mf ON e.medical_focus_id = mf.id
+      JOIN User u1 ON e.coordinator_id = u1.id
+      JOIN User u2 ON e.fundraiser_id = u2.id
+      WHERE e.id = ?
+    `, [eventId]);
+
+    if (!event) {
+      return res.status(404).json({ error: 'Event not found' });
+    }
+
+    res.json(event);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to fetch event details' });
+  }
+};
+
+exports.getDonorListForEvent = async (req, res) => {
+  const { eventId } = req.params;
+  try {
+    const [donors] = await db.execute(`
+      SELECT CONCAT(d.first_name, ' ', d.last_name) AS name,
+             d.total_donation,
+             d.city,
+             GROUP_CONCAT(mf.name) AS medical_focus,
+             d.engagement,
+             d.email,
+             d.pmm
+      FROM Event_Donor ed
+      JOIN Donor d ON ed.donor_id = d.id
+      JOIN Donor_Medical_Focus dm ON d.id = dm.donor_id
+      JOIN Medical_Focus mf ON dm.medical_focus_id = mf.id
+      WHERE ed.event_id = ?
+      GROUP BY d.id
+    `, [eventId]);
+
+    res.json(donors);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to fetch donor list' });
+  }
+};
+
+exports.getMedicalFocusNames = async (req, res) => {
+  try {
+    const [rows] = await db.execute('SELECT name FROM Medical_Focus');
+    const names = rows.map(row => row.name);
+    res.json(names);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to get medical focuses' });
+  }
+};
+
+exports.getUserNames = async (req, res) => {
+  try {
+    const [rows] = await db.execute('SELECT name FROM User');
+    const names = rows.map(row => row.name);
+    res.json(names);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to get user names' });
+  }
+};
+
+exports.getEventCities = async (req, res) => {
+  try {
+    const [rows] = await db.execute('SELECT DISTINCT city FROM Event ORDER BY city');
+    const cities = rows.map(row => row.city);
+    res.json(cities);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to fetch cities' });
+  }
+};
+
+exports.deleteEvent = async (req, res) => {
+  const { eventId } = req.params;
+  try {
+    await db.execute('DELETE FROM Event WHERE id = ?', [eventId]);
+    res.json({ message: 'Event deleted successfully' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to delete event' });
+  }
+};
