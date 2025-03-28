@@ -230,21 +230,32 @@ exports.suggestDonors = async (req, res) => {
 
 exports.addDonorTemp = (req, res) => {
   const { eventId } = req.params;
-  const { donorId } = req.body;
-  if (!tempDonorEdits.has(eventId)) tempDonorEdits.set(eventId, { added: new Set(), removed: new Set() });
+  const donorId = Number(req.body.donorId);
+
+  if (!tempDonorEdits.has(eventId)) {
+    tempDonorEdits.set(eventId, { added: new Set(), removed: new Set() });
+  }
+
   const edits = tempDonorEdits.get(eventId);
   edits.removed.delete(donorId);
   edits.added.add(donorId);
+
   res.json({ message: 'Donor temporarily added' });
 };
 
+
 exports.removeDonorTemp = (req, res) => {
   const { eventId } = req.params;
-  const { donorId } = req.body;
-  if (!tempDonorEdits.has(eventId)) tempDonorEdits.set(eventId, { added: new Set(), removed: new Set() });
+  const donorId = Number(req.body.donorId);
+
+  if (!tempDonorEdits.has(eventId)) {
+    tempDonorEdits.set(eventId, { added: new Set(), removed: new Set() });
+  }
+
   const edits = tempDonorEdits.get(eventId);
-  edits.added.delete(donorId);
+  edits.added.delete(donorId);      
   edits.removed.add(donorId);
+  
   res.json({ message: 'Donor temporarily removed' });
 };
 
