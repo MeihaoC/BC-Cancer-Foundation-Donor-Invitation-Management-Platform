@@ -78,6 +78,7 @@ export default function EventPage() {
           fundraiser: newEvent.fundraiser,
           details: newEvent.description
         };
+        console.log("Adding event:", payload);
       
         try {
           const response = await axios.post("http://localhost:5001/api/events", payload);

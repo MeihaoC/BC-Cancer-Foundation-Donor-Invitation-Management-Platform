@@ -18,7 +18,7 @@ const DonorTable = ({ donors, showActions, handleAddDonor, handleRemoveDonor }) 
       <tbody>
         {donors.map((donor) => (
           <tr key={donor.id}>
-            <td>{donor.first_name} {donor.last_name}</td>
+            <td>{donor.name}</td>
             <td>{donor.total_donation}</td>
             <td>{donor.city}</td>
             <td>{donor.medical_focus}</td>

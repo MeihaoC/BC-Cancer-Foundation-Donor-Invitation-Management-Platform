@@ -71,11 +71,13 @@ function SingleEventPage() {
         const fetchData = async () => {
             try {
                 // fetch the event data
-                const eventResponse = await axios.get('http://localhost:5001/api/events/' + eventId);
+                const eventResponse = await axios.get('http://localhost:5001/api/events/' + eventId + '/details');
+                console.log(eventResponse.data);
                 setEvent(eventResponse.data);
 
                 // fetch the donors data
                 const donorsResponse = await axios.get('http://localhost:5001/api/events/' + eventId + '/donors');
+                console.log(donorsResponse.data);
                 setDonors(donorsResponse.data || []);
                 if (donorsResponse.data && donorsResponse.data.length > 0) {
                     setIsFormVisible(true);
@@ -98,7 +100,7 @@ function SingleEventPage() {
     // delete the event
     const handleDelete = async () => {
         try {
-            await axios.delete('http://localhost:3001/events/' + eventId);
+            await axios.delete('http://localhost:5001/api/events/' + eventId);
             alert("Event deleted successfully!");
             navigate('/events');
         } catch (error) {
@@ -118,7 +120,7 @@ function SingleEventPage() {
             }
             // export the donors
             // get donors data
-            const response = await axios.get('http://localhost:3001/events/' + eventId + '/donors/export', {
+            const response = await axios.get('http://localhost:5001/api/events/' + eventId + '/donors/export', {
                 responseType: 'blob',
             });
             // create a URL to download the file

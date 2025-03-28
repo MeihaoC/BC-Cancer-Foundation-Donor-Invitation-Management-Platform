@@ -26,8 +26,9 @@ exports.login = async (req, res) => {
 exports.getEvents = async (req, res) => {
   try {
     const [events] = await db.execute(`
-      SELECT 
-        e.id, e.name, e.date, e.city, e.capacity,
+      SELECT
+        e.id,
+        e.name, e.date, e.city, e.capacity,
         mf.name AS medical_focus,
         c.name AS coordinator,
         f.name AS fundraiser
@@ -421,16 +422,5 @@ exports.deleteEvent = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to delete event' });
-  }
-
-  exports.deleteEvent = async (req, res) => {
-    const { eventId } = req.params;
-    try {
-      await db.execute('DELETE FROM Event WHERE id = ?', [eventId]);
-      res.json({ message: 'Event deleted successfully' });
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: 'Failed to delete event' });
-    }
   }
 };
