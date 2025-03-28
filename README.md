@@ -42,6 +42,7 @@ GET /api/events
 ```
 [
   {
+    "id":1,
     "name": "Brain Cancer Awareness Walk",
     "date": "2024-06-15T07:00:00.000Z",
     "city": "Vancouver",
