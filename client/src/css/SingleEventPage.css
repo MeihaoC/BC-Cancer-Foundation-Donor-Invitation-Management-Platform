@@ -88,7 +88,7 @@
   }
   
   /* General button styling for donor container */
-  .donor-container button {
+  .donor-container button, .back-button {
     background-color: var(--primary-color);
     color: white;
     padding: 6px 10px;
@@ -175,11 +175,17 @@
     color: white;
   }
   
-  .donor-edit-actions,
+  .donor-edit-buttons,
   .donor-add-form-actions {
     margin-top: 12px;
     display: flex;
     gap: 8px;
+  }
+
+  .donor-edit-buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
   
   /* Responsive adjustments */

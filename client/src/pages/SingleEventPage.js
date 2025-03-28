@@ -3,8 +3,8 @@ import axios from "axios";
 import "../css/SingleEventPage.css";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-
 import DonorTable from "../components/DonorTable";
+import { IoArrowBack } from "react-icons/io5";
 
 // API: '/events/:eventId'
 function SingleEventPage() {
@@ -75,6 +75,15 @@ function SingleEventPage() {
         // call the fetchEventData function
         fetchData();
     }, [eventId]);
+
+    // New useEffect to set filters after event updates
+    useEffect(() => {
+        if (event && event.city) {
+            setFilterCity(event.city);
+            setFilterMedicalFocus(event.medical_focus);
+            setFilterEngagement("Highly Engaged");
+        }
+    }, [event]);
 
     // delete the event
     const handleDelete = async () => {
@@ -191,6 +200,7 @@ function SingleEventPage() {
     // "By Filters" search for generation/adding
     const handleApplyFilters = async () => {
         try {
+            console.log("Filters:", filterCity, filterMedicalFocus, filterEngagement);
             const response = await axios.get(`http://localhost:5001/api/events/${eventId}/suggest-donors`, {
                 params: {
                     city: filterCity,
@@ -198,6 +208,7 @@ function SingleEventPage() {
                     engagement: filterEngagement,
                 }
             });
+            console.log("Filtered donors:", response.data.best, response.data.additional);
             const { best, additional } = response.data;
             setBestMatchedDonors(best);
             setAdditionalDonors(additional);
@@ -345,6 +356,9 @@ function SingleEventPage() {
 
     return (
         <div className="event-container">
+            <div>
+                <button className="back-button" onClick={() => navigate("/events")}><IoArrowBack /> Back</button>
+            </div>
             <div className="event-header">
                 <h1>{event.name}</h1>
                 <button className="delete-button" onClick={handleDelete}>Delete</button>
@@ -423,27 +437,27 @@ function SingleEventPage() {
                             </div>
                         )}
                         {activeTab === "byFilters" && (
-                            <div className="filter-container">
-                                <select value={filterCity} onChange={(e) => setFilterCity(e.target.value)}>
-                                    <option value="">All Cities</option>
-                                    {cityOptions.map((city, idx) => (
-                                        <option key={idx} value={city}>{city}</option>
-                                    ))}
-                                </select>
-                                <select value={filterMedicalFocus} onChange={(e) => setFilterMedicalFocus(e.target.value)}>
-                                    <option value="">All Focus</option>
-                                    {medicalFocusOptions.map((focus, idx) => (
-                                        <option key={idx} value={focus}>{focus}</option>
-                                    ))}
-                                </select>
-                                <select value={filterEngagement} onChange={(e) => setFilterEngagement(e.target.value)}>
-                                    <option value="">All Engagement</option>
-                                    <option value="Highly Engaged">Highly Engaged</option>
-                                    <option value="Moderately Engaged">Moderately Engaged</option>
-                                    <option value="Rarely Engaged">Rarely Engaged</option>
-                                </select>
-                                <button onClick={handleApplyFilters}>Apply</button>
-                            </div>
+                        <div className="filter-container">
+                            <select value={filterCity} onChange={(e) => setFilterCity(e.target.value)}>
+                                <option value="">All Cities</option>
+                                {cityOptions.map((city, idx) => (
+                                    <option key={idx} value={city}>{city}</option>
+                                ))}
+                            </select>
+                            <select value={filterMedicalFocus} onChange={(e) => setFilterMedicalFocus(e.target.value)}>
+                                <option value="">All Focus</option>
+                                {medicalFocusOptions.map((focus, idx) => (
+                                    <option key={idx} value={focus}>{focus}</option>
+                                ))}
+                            </select>
+                            <select value={filterEngagement} onChange={(e) => setFilterEngagement(e.target.value)}>
+                                <option value="">All Engagement</option>
+                                <option value="Highly Engaged">Highly Engaged</option>
+                                <option value="Moderately Engaged">Moderately Engaged</option>
+                                <option value="Rarely Engaged">Rarely Engaged</option>
+                            </select>
+                            <button onClick={handleApplyFilters}>Apply</button>
+                        </div>
                         )}
 
                         {activeTab === "byName" && matchedDonors.length > 0 && (
@@ -496,17 +510,19 @@ function SingleEventPage() {
                     <div className="donor-edit-form">
                         <h2>Edit Donor List</h2>
                         <DonorTable donors={tempDonorList} showActions={true} handleRemoveDonor={handleRemoveDonor} />
-                        <div className="donor-edit-actions">
-                            <button onClick={handleCancelEdit}>Cancel</button>
-                            <button onClick={handleSaveEdit}>Save</button>
-                        </div>
-
-                        {/* Add Donors button appears in edit mode */}
-                        {!isAddingDonors && (
-                            <div className="add-donors-button">
-                                <button onClick={handleShowAddDonors}>Add Donors</button>
+                        <div className="donor-edit-buttons">
+                            {/* Add Donors button appears in edit mode */}
+                            {!isAddingDonors && (
+                                <div className="add-donors-button">
+                                    <button onClick={handleShowAddDonors}>Add Donors</button>
+                                </div>
+                            )}
+                            {/* Cancel and Save buttons */}
+                            <div className="donor-edit-actions">
+                                <button onClick={handleCancelEdit}>Cancel</button>
+                                <button onClick={handleSaveEdit}>Save</button>
                             </div>
-                        )}
+                        </div>
 
                         {/* When "Add Donors" is clicked, show additional recommended donor lists */}
                         {isAddingDonors && (

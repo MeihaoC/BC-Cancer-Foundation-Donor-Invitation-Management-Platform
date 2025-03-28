@@ -167,12 +167,12 @@
     cursor: pointer;
   }
 
-  .form-buttons button:first-child {
+  .form-buttons button:last-child {
     background-color: #3b82f6;
     color: white;
   }
 
-  .form-buttons button:last-child {
+  .form-buttons button:first-child {
     background-color: #ccc;
     color: black;
   }

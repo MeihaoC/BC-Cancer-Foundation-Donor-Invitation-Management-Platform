@@ -20,7 +20,7 @@ export default function EventPage() {
 
     // Pagination state
     const [currentPage, setCurrentPage] = useState(1);
-    const eventsPerPage = 5;
+    const eventsPerPage = 10;
 
     // Form visibility and data
     const [isFormVisible, setIsFormVisible] = useState(false);
@@ -112,12 +112,9 @@ export default function EventPage() {
     };
 
     // Search handler: search events by name
+    // ***TODO: Send all events when search term is empty
     const handleSearch = async (e) => {
         e.preventDefault();
-        if (!searchTerm) {
-            alert("Please enter a search term.");
-            return;
-        }
         try {
             console.log("Searching for events with name:", searchTerm);
             const response = await axios.get(`http://localhost:5001/api/events/search?q=${searchTerm}`);
@@ -292,8 +289,8 @@ export default function EventPage() {
                         </div>
                     ))}
                     <div className="form-buttons">
-                        <button onClick={handleAddEvent}>Submit</button>
                         <button onClick={() => setIsFormVisible(false)}>Cancel</button>
+                        <button onClick={handleAddEvent}>Submit</button>
                     </div>
                 </div>
             )}
