@@ -8,37 +8,12 @@ import DonorTable from "../components/DonorTable";
 
 // API: '/events/:eventId'
 function SingleEventPage() {
-    const defaultEvent = {
-        name: "Charity Blood Drive",
-        date: "2025-04-01",
-        location: "Downtown Center",
-        city: "Vancouver",
-        medical_focus: "Blood Donation",
-        capacity: 200,
-        coordinator: "Dr. Emily Chen",
-        fundraiser: "Health Support Foundation",
-        detailed_info: "Join us to save lives with your generous blood donation!"
-    };
-    
-    const defaultDonors = [
-        { id: 1, first_name: "John", last_name: "Doe", total_donation: 500, city: "Vancouver", medical_focus: "Brain Cancer", engagement: "Highly Engaged", email: "john.doe@example.com", pmm: "PM1" },
-        { id: 2, first_name: "Jane", last_name: "Smith", total_donation: 300, city: "Burnaby", medical_focus: "Brain Cancer", engagement: "Moderately Engaged", email: "jane.smith@example.com", pmm: "PM2" },
-        { id: 3, first_name: "Alex", last_name: "Johnson", total_donation: 200, city: "Richmond", medical_focus: "Lung Cancer", engagement: "Rarely Engaged", email: "alex.j@example.com", pmm: "PM3" },
-        { id: 4, first_name: "Emily", last_name: "Chang", total_donation: 250, city: "Vancouver", medical_focus: "Brain Cancer", engagement: "Highly Engaged", email: "emily.chang@example.com", pmm: "PM4" },
-        { id: 5, first_name: "Michael", last_name: "Brown", total_donation: 150, city: "Surrey", medical_focus: "Breast Cancer", engagement: "Moderately Engaged", email: "michael.brown@example.com", pmm: "PM5" },
-        { id: 6, first_name: "Sarah", last_name: "Wilson", total_donation: 350, city: "Richmond", medical_focus: "Lung Cancer", engagement: "Highly Engaged", email: "sarah.wilson@example.com", pmm: "PM6" },
-        { id: 7, first_name: "David", last_name: "Lee", total_donation: 400, city: "Vancouver", medical_focus: "Brain Cancer", engagement: "Moderately Engaged", email: "david.lee@example.com", pmm: "PM7" },
-        { id: 8, first_name: "Laura", last_name: "Garcia", total_donation: 280, city: "Burnaby", medical_focus: "Breast Cancer", engagement: "Rarely Engaged", email: "laura.garcia@example.com", pmm: "PM8" },
-        { id: 9, first_name: "Chris", last_name: "Martinez", total_donation: 220, city: "Surrey", medical_focus: "Brain Cancer", engagement: "Highly Engaged", email: "chris.martinez@example.com", pmm: "PM9" },
-        { id: 10, first_name: "Anna", last_name: "Kim", total_donation: 310, city: "Vancouver", medical_focus: "Lung Cancer", engagement: "Moderately Engaged", email: "anna.kim@example.com", pmm: "PM10" },
-    ];
-
     // create variables to store event data and navigate to other pages
     const { eventId } = useParams();
     const navigate = useNavigate();
 
     // Event and donor list data
-    const [event, setEvent] = useState(defaultEvent);
+    const [event, setEvent] = useState([]);
     const [donors, setDonors] = useState([]);
 
     // Flags to control the donor list UI states
@@ -56,6 +31,10 @@ function SingleEventPage() {
     const [filterCity, setFilterCity] = useState("");
     const [filterMedicalFocus, setFilterMedicalFocus] = useState("");
     const [filterEngagement, setFilterEngagement] = useState("");
+    
+    // States for filter options
+    const [cityOptions, setCityOptions] = useState([]);
+    const [medicalFocusOptions, setMedicalFocusOptions] = useState([]);
 
     // Recommended donor lists (for generation or adding donors)
     const [bestMatchedDonors, setBestMatchedDonors] = useState([]);
@@ -88,7 +67,7 @@ function SingleEventPage() {
                 // handle errors
                 console.error("Failed to fetch event data:", error);
                 alert(error.message);
-                setEvent(defaultEvent);
+                setEvent([]);
                 setDonors([]);
                 setIsFormVisible(false);
             }
@@ -142,11 +121,24 @@ function SingleEventPage() {
         }
     };
 
-    // Utility: Get the capacity used for splitting donor lists.
-    // For demo purposes, we use Math.min(event.capacity, 5)
-    const getCapacity = () => {
-        return Math.min(event.capacity, 5) || 5;
-    };
+    // Fetch filter options
+    useEffect(() => {
+        const fetchFilterOptions = async () => {
+          try {
+            const citiesRes = await axios.get('http://localhost:5001/api/events/cities');
+            setCityOptions(citiesRes.data);
+          } catch (error) {
+            console.error("Failed to fetch city options:", error);
+          }
+          try {
+            const focusRes = await axios.get('http://localhost:5001/api/events/medical-focuses');
+            setMedicalFocusOptions(focusRes.data);
+          } catch (error) {
+            console.error("Failed to fetch medical focus options:", error);
+          }
+        };
+        fetchFilterOptions();
+      }, []);
 
     // Generation mode: Create a new donor list
     const handleGenerateDonorList = () => {
@@ -156,105 +148,147 @@ function SingleEventPage() {
         generateRecommendedDonors();
     };
 
-    // Example function to populate recommended donors
-    const generateRecommendedDonors = () => {
-        // In a real app, we fetch a recommended list from the backend.
-        // Here we simply split the default donors array.
-        const capacity = getCapacity();
-        setBestMatchedDonors(defaultDonors.slice(0, capacity));
-        setAdditionalDonors(defaultDonors.slice(capacity, capacity * 2));
-        setWasAdditionalDonors([]);
-        setWasBestMatchedDonors([]);
+    // Fetch recommended donors from backend
+    const generateRecommendedDonors = async () => {
+        try {
+            const response = await axios.get(`http://localhost:5001/api/events/${eventId}/suggest-donors`, {
+                params: {
+                    city: filterCity,
+                    medical_focus: filterMedicalFocus,
+                    engagement: filterEngagement
+                }
+            });
+            const { best, additional } = response.data;
+            setBestMatchedDonors(best);
+            setAdditionalDonors(additional);
+            setWasAdditionalDonors([]);
+            setWasBestMatchedDonors([]);
+        } catch (error) {
+            console.error("Failed to fetch recommended donors:", error);
+            alert("Failed to fetch recommended donors");
+        }
     };
 
     // "By Name" search for generation/adding
-    const handleSearchByName = () => {
-        // In a real app, perform an API search for donor names.
-        setMatchedDonors([]);
-        setWasMatchedDonors([]);
-        const filtered = defaultDonors.filter(donor =>
-            `${donor.first_name} ${donor.last_name}`.toLowerCase().includes(searchName.toLowerCase())
-        );
-        if (filtered.length > 0) {
-            setMatchedDonors(filtered);
-        } else {
-            // Clear matched donors if no results
-            alert("No donors found matching the search criteria.");
+    const handleSearchByName = async () => {
+        try {
+            const response = await axios.get(`http://localhost:5001/api/events/${eventId}/donors/search`, {
+                params: { name: searchName }
+            });
+            if (response.data.length > 0) {
+                setMatchedDonors(response.data);
+                setWasBestMatchedDonors([]);
+            } else {
+                setMatchedDonors([]);
+                alert("No donors found matching the search criteria.");
+            }
+        } catch (error) {
+            console.error("Donor search failed:", error);
+            alert("Donor search failed");
         }
     };
 
     // "By Filters" search for generation/adding
-    const handleApplyFilters = () => {
-        // In a real app, perform an API call using the filter parameters.
-        const filtered = defaultDonors.filter(donor => {
-            const cityMatch = filterCity ? donor.city === filterCity : true;
-            const focusMatch = filterMedicalFocus ? donor.medical_focus === filterMedicalFocus : true;
-            const engagementMatch = filterEngagement ? donor.engagement === filterEngagement : true;
-            return cityMatch && focusMatch && engagementMatch;
-        });
-        const capacity = getCapacity();
-        setBestMatchedDonors(filtered.slice(0, capacity));
-        setAdditionalDonors(filtered.slice(capacity, capacity * 2));
+    const handleApplyFilters = async () => {
+        try {
+            const response = await axios.get(`http://localhost:5001/api/events/${eventId}/suggest-donors`, {
+                params: {
+                    city: filterCity,
+                    medical_focus: filterMedicalFocus,
+                    engagement: filterEngagement,
+                }
+            });
+            const { best, additional } = response.data;
+            setBestMatchedDonors(best);
+            setAdditionalDonors(additional);
+        } catch (error) {
+            console.error("Failed to fetch donor suggestions:", error);
+            alert("Failed to fetch donor suggestions");
+        }
     };
 
-    // Add a donor to the temporary list (both in generate and add mode)
-    const handleAddDonor = (donor) => {
-        if (!tempDonorList.some(d => d.id === donor.id)) {
-            setTempDonorList([...tempDonorList, donor]);
+    // Add a donor to the temporary list
+    const handleAddDonor = async (donor) => {
+        try {
+            await axios.post(`http://localhost:5001/api/events/${eventId}/donors/add`, { donorId: donor.id });
+            if (!tempDonorList.some(d => d.id === donor.id)) {
+                setTempDonorList([...tempDonorList, donor]);
 
-            // filter out the selected donor from the recommended lists
-            if (bestMatchedDonors.some(d => d.id === donor.id)) {
-                setWasBestMatchedDonors([...wasBestMatchedDonors, donor]);
-                setBestMatchedDonors(bestMatchedDonors.filter(d => d.id !== donor.id));
-            } 
-            if (additionalDonors.some(d => d.id === donor.id)) {
-                setWasAdditionalDonors([...wasAdditionalDonors, donor]);
-                setAdditionalDonors(additionalDonors.filter(d => d.id !== donor.id));
+                // filter out the selected donor from the recommended lists
+                if (bestMatchedDonors.some(d => d.id === donor.id)) {
+                    setWasBestMatchedDonors([...wasBestMatchedDonors, donor]);
+                    setBestMatchedDonors(bestMatchedDonors.filter(d => d.id !== donor.id));
+                } 
+                if (additionalDonors.some(d => d.id === donor.id)) {
+                    setWasAdditionalDonors([...wasAdditionalDonors, donor]);
+                    setAdditionalDonors(additionalDonors.filter(d => d.id !== donor.id));
+                }
+                if (matchedDonors.some(d => d.id === donor.id)) {
+                    setWasMatchedDonors([...wasMatchedDonors, donor]);
+                    setMatchedDonors(matchedDonors.filter(d => d.id !== donor.id));
+                }
             }
-            if (matchedDonors.some(d => d.id === donor.id)) {
-                setWasMatchedDonors([...wasMatchedDonors, donor]);
-                setMatchedDonors(matchedDonors.filter(d => d.id !== donor.id));
-            }
+        } catch (error) {
+            console.error("Failed to add donor temporarily:", error);
+            alert("Failed to add donor");
         }
     };
 
     // Remove a donor from the temporary list
-    const handleRemoveDonor = (id) => {
-        setTempDonorList(tempDonorList.filter(d => d.id !== id));
-        if (wasBestMatchedDonors.some(d => d.id === id)) {
-            const donor = wasBestMatchedDonors.find(d => d.id === id);
-            setBestMatchedDonors([...bestMatchedDonors, donor]);
-            setWasBestMatchedDonors(wasBestMatchedDonors.filter(d => d.id !== id));
-        }
-        if (wasAdditionalDonors.some(d => d.id === id)) {
-            const donor = wasAdditionalDonors.find(d => d.id === id);
-            setAdditionalDonors([...additionalDonors, donor]);
-            setWasAdditionalDonors(wasAdditionalDonors.filter(d => d.id !== id));
-        }
-        if (wasMatchedDonors.some(d => d.id === id)) {
-            const donor = wasMatchedDonors.find(d => d.id === id);
-            setMatchedDonors([...matchedDonors, donor]);
-            setWasMatchedDonors(wasMatchedDonors.filter(d => d.id !== id));
+    const handleRemoveDonor = async (id) => {
+        try {
+            await axios.post(`http://localhost:5001/api/events/${eventId}/donors/remove`, { donorId: id });
+            setTempDonorList(tempDonorList.filter(d => d.id !== id));
+            if (wasBestMatchedDonors.some(d => d.id === id)) {
+                const donor = wasBestMatchedDonors.find(d => d.id === id);
+                setBestMatchedDonors([...bestMatchedDonors, donor]);
+                setWasBestMatchedDonors(wasBestMatchedDonors.filter(d => d.id !== id));
+            }
+            if (wasAdditionalDonors.some(d => d.id === id)) {
+                const donor = wasAdditionalDonors.find(d => d.id === id);
+                setAdditionalDonors([...additionalDonors, donor]);
+                setWasAdditionalDonors(wasAdditionalDonors.filter(d => d.id !== id));
+            }
+            if (wasMatchedDonors.some(d => d.id === id)) {
+                const donor = wasMatchedDonors.find(d => d.id === id);
+                setMatchedDonors([...matchedDonors, donor]);
+                setWasMatchedDonors(wasMatchedDonors.filter(d => d.id !== id));
+            }
+        } catch (error) {
+            console.error("Failed to remove donor temporarily:", error);
+            alert("Failed to remove donor");
         }
     };
 
     // Cancel generating a new list
-    const handleCancelGenerate = () => {
-        setIsGenerating(false);
-        setTempDonorList([]);
+    const handleCancelGenerate = async () => {
+        try {
+            await axios.post(`http://localhost:5001/api/events/${eventId}/donors/cancel`);
+            setIsGenerating(false);
+            setTempDonorList([]);
+        } catch (error) {
+            console.error("Failed to cancel donor edits:", error);
+            alert("Failed to cancel donor edits");
+        }
     };
 
     // Save generated donor list as final list
     const handleSaveGenerate = async () => {
-        // In a real app, POST tempDonorList to backend
-        setDonors(tempDonorList);
-        setIsGenerating(false);
-        setIsFormVisible(true);
-        setSearchName("");
-        setWasAdditionalDonors([]);
-        setWasBestMatchedDonors([]);
-        setWasMatchedDonors([]);
-        alert("Donor list generated and saved!");
+        try {
+            await axios.post(`http://localhost:5001/api/events/${eventId}/donors/save`);
+            const donorsResponse = await axios.get(`http://localhost:5001/api/events/${eventId}/donors`);
+            setDonors(donorsResponse.data || []);
+            setIsGenerating(false);
+            setIsFormVisible(true);
+            setSearchName("");
+            setWasAdditionalDonors([]);
+            setWasBestMatchedDonors([]);
+            setWasMatchedDonors([]);
+            alert("Donor list generated and saved!");
+        } catch (error) {
+            console.error("Failed to save donor list:", error);
+            alert("Failed to save donor list");
+        }
     };
 
     // Edit an existing donor list (initially for deletion only)
@@ -265,23 +299,35 @@ function SingleEventPage() {
     };
 
     // Cancel editing
-    const handleCancelEdit = () => {
-        setIsEditingFinalList(false);
-        setTempDonorList([]);
-        setIsAddingDonors(false); // also cancel any add donors UI if open
+    const handleCancelEdit = async () => {
+        try {
+            await axios.post(`http://localhost:5001/api/events/${eventId}/donors/cancel`);
+            setIsEditingFinalList(false);
+            setTempDonorList([]);
+            setIsAddingDonors(false); // also cancel any add donors UI if open
+        } catch (error) {
+            console.error("Failed to cancel donor edits:", error);
+            alert("Failed to cancel donor edits");
+        }
     };
 
     // Save edited donor list
     const handleSaveEdit = async () => {
-        // In a real app, update the backend with tempDonorList
-        setDonors(tempDonorList);
-        setIsEditingFinalList(false);
-        setIsAddingDonors(false);
-        setSearchName("");
-        setWasAdditionalDonors([]);
-        setWasBestMatchedDonors([]);
-        setWasMatchedDonors([]);
-        alert("Donor list updated!");
+        try {
+            await axios.post(`http://localhost:5001/api/events/${eventId}/donor/save`);
+            const donorsResponse = await axios.get(`http://localhost:5001/api/events/${eventId}/donors`);
+            setDonors(donorsResponse.data || []);
+            setIsEditingFinalList(false);
+            setIsAddingDonors(false);
+            setSearchName("");
+            setWasAdditionalDonors([]);
+            setWasBestMatchedDonors([]);
+            setWasMatchedDonors([]);
+            alert("Donor list updated!");
+        } catch (error) {
+            console.error("Failed to update donor list:", error);
+            alert("Failed to update donor list");
+        }
     };
 
     // Handle "Add Donors" action in edit mode:
@@ -379,19 +425,16 @@ function SingleEventPage() {
                         {activeTab === "byFilters" && (
                             <div className="filter-container">
                                 <select value={filterCity} onChange={(e) => setFilterCity(e.target.value)}>
-                                    {/* Temporary options */}
                                     <option value="">All Cities</option>
-                                    <option value="Vancouver">Vancouver</option>
-                                    <option value="Burnaby">Burnaby</option>
-                                    <option value="Richmond">Richmond</option>
-                                    <option value="Surrey">Surrey</option>
+                                    {cityOptions.map((city, idx) => (
+                                        <option key={idx} value={city}>{city}</option>
+                                    ))}
                                 </select>
                                 <select value={filterMedicalFocus} onChange={(e) => setFilterMedicalFocus(e.target.value)}>
-                                    {/* Temporary options */}
                                     <option value="">All Focus</option>
-                                    <option value="Brain Cancer">Brain Cancer</option>
-                                    <option value="Lung Cancer">Lung Cancer</option>
-                                    <option value="Breast Cancer">Breast Cancer</option>
+                                    {medicalFocusOptions.map((focus, idx) => (
+                                        <option key={idx} value={focus}>{focus}</option>
+                                    ))}
                                 </select>
                                 <select value={filterEngagement} onChange={(e) => setFilterEngagement(e.target.value)}>
                                     <option value="">All Engagement</option>
@@ -498,16 +541,15 @@ function SingleEventPage() {
                                     <div className="filter-container">
                                         <select value={filterCity} onChange={(e) => setFilterCity(e.target.value)}>
                                             <option value="">All Cities</option>
-                                            <option value="Vancouver">Vancouver</option>
-                                            <option value="Burnaby">Burnaby</option>
-                                            <option value="Richmond">Richmond</option>
-                                            <option value="Surrey">Surrey</option>
+                                            {cityOptions.map((city, idx) => (
+                                                <option key={idx} value={city}>{city}</option>
+                                            ))}
                                         </select>
                                         <select value={filterMedicalFocus} onChange={(e) => setFilterMedicalFocus(e.target.value)}>
                                             <option value="">All Focus</option>
-                                            <option value="Brain Cancer">Brain Cancer</option>
-                                            <option value="Lung Cancer">Lung Cancer</option>
-                                            <option value="Breast Cancer">Breast Cancer</option>
+                                            {medicalFocusOptions.map((focus, idx) => (
+                                                <option key={idx} value={focus}>{focus}</option>
+                                            ))}
                                         </select>
                                         <select value={filterEngagement} onChange={(e) => setFilterEngagement(e.target.value)}>
                                             <option value="">All Engagement</option>

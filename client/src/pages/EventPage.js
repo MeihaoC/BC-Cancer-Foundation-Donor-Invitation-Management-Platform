@@ -7,6 +7,7 @@ import "../css/EventPage.css";
  * EventPage Component
  * ---------------------
  * Handles displaying a list of events in a table format with pagination.
+ * Allows users to search for events.
  * Allows users to add new events using a form with validation.
  */
 
@@ -14,17 +15,12 @@ export default function EventPage() {
     // State for search input
     const [searchTerm, setSearchTerm] = useState("");
 
-    // Sample initial events list
+    // Events list state (fetched from backend)
     const [eventData, setEventData] = useState([]);
 
     // Pagination state
     const [currentPage, setCurrentPage] = useState(1);
     const eventsPerPage = 5;
-
-    // Calculate indices for current page events
-    const indexOfLastEvent = currentPage * eventsPerPage;
-    const indexOfFirstEvent = indexOfLastEvent - eventsPerPage;
-    const currentEvents = eventData.slice(indexOfFirstEvent, indexOfLastEvent);
 
     // Form visibility and data
     const [isFormVisible, setIsFormVisible] = useState(false);
@@ -32,7 +28,7 @@ export default function EventPage() {
         eventName: "",
         date: "",
         city: "",
-        location:"",
+        location: "",
         medicalFocus: "",
         capacity: "",
         coordinator: "",
@@ -40,6 +36,15 @@ export default function EventPage() {
         description: ""
     });
     const [errors, setErrors] = useState({});
+
+    // Dropdown options state
+    const [medicalFocusOptions, setMedicalFocusOptions] = useState([]);
+    const [userOptions, setUserOptions] = useState([]);
+
+    // Calculate indices for current page events
+    const indexOfLastEvent = currentPage * eventsPerPage;
+    const indexOfFirstEvent = indexOfLastEvent - eventsPerPage;
+    const currentEvents = eventData.slice(indexOfFirstEvent, indexOfLastEvent);
 
     // Utility: Capitalize camelCase fields for labels
     const capitalizeFieldName = (fieldName) => {
@@ -57,7 +62,9 @@ export default function EventPage() {
                 newErrors[key] = "This field is required";
             }
         });
-        if (newEvent.capacity <= 0) newErrors.capacity = "Capacity must be a positive integer";
+        if (newEvent.capacity <= 0) {
+            newErrors.capacity = "Capacity must be a positive integer";
+        }
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
@@ -65,61 +72,56 @@ export default function EventPage() {
     // Submit handler: validate + append event
     const handleAddEvent = async () => {
         if (!validateForm()) return;
-      
+
         // Map frontend fields to backend keys.
         const payload = {
-          name: newEvent.eventName,
-          date: newEvent.date, 
-          location: newEvent.location,
-          city: newEvent.city,
-          medical_focus: newEvent.medicalFocus,
-          capacity: parseInt(newEvent.capacity, 10),
-          coordinator: newEvent.coordinator,
-          fundraiser: newEvent.fundraiser,
-          details: newEvent.description
+            name: newEvent.eventName,
+            date: newEvent.date,
+            location: newEvent.location,
+            city: newEvent.city,
+            medical_focus: newEvent.medicalFocus,
+            capacity: parseInt(newEvent.capacity, 10),
+            coordinator: newEvent.coordinator,
+            fundraiser: newEvent.fundraiser,
+            details: newEvent.description
         };
-        console.log("Adding event:", payload);
-      
+
         try {
-          const response = await axios.post("http://localhost:5001/api/events", payload);
-          console.log("Event added:", response.data);
-          // After successful creation, refresh the events list.
-          await fetchAllEvents();
-          // Reset the form and hide it.
-          setIsFormVisible(false);
-          setNewEvent({
-            eventName: "",
-            date: "",
-            city: "",
-            location: "", 
-            medicalFocus: "",
-            capacity: "",
-            coordinator: "",
-            fundraiser: "",
-            description: ""
-          });
-          setErrors({});
+            const response = await axios.post("http://localhost:5001/api/events", payload);
+            console.log("Event added:", response.data);
+            // After successful creation, refresh the events list.
+            await fetchAllEvents();
+            // Reset the form and hide it.
+            setIsFormVisible(false);
+            setNewEvent({
+                eventName: "",
+                date: "",
+                city: "",
+                location: "",
+                medicalFocus: "",
+                capacity: "",
+                coordinator: "",
+                fundraiser: "",
+                description: ""
+            });
+            setErrors({});
         } catch (err) {
-          console.error(err);
-          alert(err.response?.data?.error || err.response?.data?.message || err.message);
+            console.error(err);
+            alert(err.response?.data?.error || err.response?.data?.message || err.message);
         }
-      };
+    };
 
     // Search handler: search events by name
     const handleSearch = async (e) => {
         e.preventDefault();
-
-        // Check if search term is empty
         if (!searchTerm) {
             alert("Please enter a search term.");
             return;
         }
-
-        // Fetch events by search term
         try {
-            console.log('Searching for events with name:', searchTerm);
+            console.log("Searching for events with name:", searchTerm);
             const response = await axios.get(`http://localhost:5001/api/events/search?q=${searchTerm}`);
-            console.log('Events fetched:', response.data);
+            console.log("Events fetched:", response.data);
             setEventData(response.data);
         } catch (err) {
             console.error(err);
@@ -127,11 +129,11 @@ export default function EventPage() {
         }
     };
 
-    // fetch all events from the backend
+    // Fetch all events from the backend
     const fetchAllEvents = async () => {
         try {
             const response = await axios.get("http://localhost:5001/api/events");
-            console.log('Events fetched:', response.data);
+            console.log("Events fetched:", response.data);
             setEventData(response.data);
         } catch (err) {
             console.error(err);
@@ -139,15 +141,28 @@ export default function EventPage() {
         }
     };
 
+    // useEffect: Fetch events and dropdown options on component mount
     useEffect(() => {
         fetchAllEvents();
-      }, []);
+
+        axios
+            .get("http://localhost:5001/api/events/medical-focuses")
+            .then((response) => setMedicalFocusOptions(response.data))
+            .catch((err) => console.error("Error fetching medical focuses:", err));
+
+        axios
+            .get("http://localhost:5001/api/events/users")
+            .then((response) => setUserOptions(response.data))
+            .catch((err) => console.error("Error fetching user names:", err));
+    }, []);
 
     return (
         <div className="event-container">
             <div className="event-header">
                 <h1 className="event-title">Events</h1>
-                <button className="add-button" onClick={() => setIsFormVisible(true)}>+ ADD</button>
+                <button className="add-button" onClick={() => setIsFormVisible(true)}>
+                    + ADD
+                </button>
             </div>
 
             <div className="search-container">
@@ -157,7 +172,9 @@ export default function EventPage() {
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                 />
-                <button className="add-button" onClick={handleSearch}>Search</button>
+                <button className="add-button" onClick={handleSearch}>
+                    Search
+                </button>
             </div>
 
             <table className="event-table">
@@ -181,7 +198,7 @@ export default function EventPage() {
                                     {event.name}
                                 </Link>
                             </td>
-                            <td>{event.date instanceof Date ? event.date.toLocaleDateString() : event.date}</td>
+                            <td>{new Date(event.date).toLocaleDateString()}</td>
                             <td>{event.city}</td>
                             <td>{event.medical_focus}</td>
                             <td>{event.capacity}</td>
@@ -196,9 +213,16 @@ export default function EventPage() {
             </table>
 
             <div className="pagination">
-                <button disabled={currentPage === 1} onClick={() => setCurrentPage(currentPage - 1)}>Previous</button>
+                <button disabled={currentPage === 1} onClick={() => setCurrentPage(currentPage - 1)}>
+                    Previous
+                </button>
                 <span>Page {currentPage}</span>
-                <button disabled={currentPage === Math.ceil(eventData.length / eventsPerPage)} onClick={() => setCurrentPage(currentPage + 1)}>Next</button>
+                <button
+                    disabled={currentPage === Math.ceil(eventData.length / eventsPerPage)}
+                    onClick={() => setCurrentPage(currentPage + 1)}
+                >
+                    Next
+                </button>
             </div>
 
             {isFormVisible && (
@@ -207,14 +231,63 @@ export default function EventPage() {
                     {Object.keys(newEvent).map((key) => (
                         <div key={key} className="form-group">
                             <label className="form-label">{capitalizeFieldName(key)}</label>
-                            <input
-                                className="form-input"
-                                type={key === "date" ? "date" : key === "capacity" ? "number" : "text"}
-                                placeholder={capitalizeFieldName(key)}
-                                value={newEvent[key]}
-                                min={key === "capacity" ? "1" : undefined}
-                                onChange={(e) => setNewEvent({ ...newEvent, [key]: e.target.value })}
-                            />
+                            {key === "medicalFocus" ? (
+                                <select
+                                    className="form-input"
+                                    value={newEvent.medicalFocus}
+                                    onChange={(e) =>
+                                        setNewEvent({ ...newEvent, medicalFocus: e.target.value })
+                                    }
+                                >
+                                    <option value="">Select Medical Focus</option>
+                                    {medicalFocusOptions.map((name) => (
+                                        <option key={name} value={name}>
+                                            {name}
+                                        </option>
+                                    ))}
+                                </select>
+                            ) : key === "coordinator" ? (
+                                <select
+                                    className="form-input"
+                                    value={newEvent.coordinator}
+                                    onChange={(e) =>
+                                        setNewEvent({ ...newEvent, coordinator: e.target.value })
+                                    }
+                                >
+                                    <option value="">Select Coordinator</option>
+                                    {userOptions.map((name) => (
+                                        <option key={name} value={name}>
+                                            {name}
+                                        </option>
+                                    ))}
+                                </select>
+                            ) : key === "fundraiser" ? (
+                                <select
+                                    className="form-input"
+                                    value={newEvent.fundraiser}
+                                    onChange={(e) =>
+                                        setNewEvent({ ...newEvent, fundraiser: e.target.value })
+                                    }
+                                >
+                                    <option value="">Select Fundraiser</option>
+                                    {userOptions.map((name) => (
+                                        <option key={name} value={name}>
+                                            {name}
+                                        </option>
+                                    ))}
+                                </select>
+                            ) : (
+                                <input
+                                    className="form-input"
+                                    type={key === "date" ? "date" : key === "capacity" ? "number" : "text"}
+                                    placeholder={capitalizeFieldName(key)}
+                                    value={newEvent[key]}
+                                    min={key === "capacity" ? "1" : undefined}
+                                    onChange={(e) =>
+                                        setNewEvent({ ...newEvent, [key]: e.target.value })
+                                    }
+                                />
+                            )}
                             {errors[key] && <p className="error-text">{errors[key]}</p>}
                         </div>
                     ))}
