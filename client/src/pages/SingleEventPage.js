@@ -439,19 +439,16 @@ function SingleEventPage() {
                         {activeTab === "byFilters" && (
                         <div className="filter-container">
                             <select value={filterCity} onChange={(e) => setFilterCity(e.target.value)}>
-                                <option value="">All Cities</option>
                                 {cityOptions.map((city, idx) => (
                                     <option key={idx} value={city}>{city}</option>
                                 ))}
                             </select>
                             <select value={filterMedicalFocus} onChange={(e) => setFilterMedicalFocus(e.target.value)}>
-                                <option value="">All Focus</option>
                                 {medicalFocusOptions.map((focus, idx) => (
                                     <option key={idx} value={focus}>{focus}</option>
                                 ))}
                             </select>
                             <select value={filterEngagement} onChange={(e) => setFilterEngagement(e.target.value)}>
-                                <option value="">All Engagement</option>
                                 <option value="Highly Engaged">Highly Engaged</option>
                                 <option value="Moderately Engaged">Moderately Engaged</option>
                                 <option value="Rarely Engaged">Rarely Engaged</option>
@@ -556,19 +553,16 @@ function SingleEventPage() {
                                 {activeTab === "byFilters" && (
                                     <div className="filter-container">
                                         <select value={filterCity} onChange={(e) => setFilterCity(e.target.value)}>
-                                            <option value="">All Cities</option>
                                             {cityOptions.map((city, idx) => (
                                                 <option key={idx} value={city}>{city}</option>
                                             ))}
                                         </select>
                                         <select value={filterMedicalFocus} onChange={(e) => setFilterMedicalFocus(e.target.value)}>
-                                            <option value="">All Focus</option>
                                             {medicalFocusOptions.map((focus, idx) => (
                                                 <option key={idx} value={focus}>{focus}</option>
                                             ))}
                                         </select>
                                         <select value={filterEngagement} onChange={(e) => setFilterEngagement(e.target.value)}>
-                                            <option value="">All Engagement</option>
                                             <option value="Highly Engaged">Highly Engaged</option>
                                             <option value="Moderately Engaged">Moderately Engaged</option>
                                             <option value="Rarely Engaged">Rarely Engaged</option>
