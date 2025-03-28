@@ -231,21 +231,32 @@ exports.suggestDonors = async (req, res) => {
 
 exports.addDonorTemp = (req, res) => {
   const { eventId } = req.params;
-  const { donorId } = req.body;
-  if (!tempDonorEdits.has(eventId)) tempDonorEdits.set(eventId, { added: new Set(), removed: new Set() });
+  const donorId = Number(req.body.donorId);
+
+  if (!tempDonorEdits.has(eventId)) {
+    tempDonorEdits.set(eventId, { added: new Set(), removed: new Set() });
+  }
+
   const edits = tempDonorEdits.get(eventId);
   edits.removed.delete(donorId);
   edits.added.add(donorId);
+
   res.json({ message: 'Donor temporarily added' });
 };
 
+
 exports.removeDonorTemp = (req, res) => {
   const { eventId } = req.params;
-  const { donorId } = req.body;
-  if (!tempDonorEdits.has(eventId)) tempDonorEdits.set(eventId, { added: new Set(), removed: new Set() });
+  const donorId = Number(req.body.donorId);
+
+  if (!tempDonorEdits.has(eventId)) {
+    tempDonorEdits.set(eventId, { added: new Set(), removed: new Set() });
+  }
+
   const edits = tempDonorEdits.get(eventId);
-  edits.added.delete(donorId);
+  edits.added.delete(donorId);      
   edits.removed.add(donorId);
+  
   res.json({ message: 'Donor temporarily removed' });
 };
 
@@ -253,11 +264,21 @@ exports.saveDonorList = async (req, res) => {
   const { eventId } = req.params;
   const edits = tempDonorEdits.get(eventId);
   if (!edits) return res.status(400).json({ error: 'No edits to save' });
+
   try {
+    const [existing] = await db.execute('SELECT donor_id FROM Event_Donor WHERE event_id = ?', [eventId]);
+    const kept = existing
+      .map(r => r.donor_id)
+      .filter(id => !edits.removed.has(id));
+
+    const finalSet = new Set([...kept, ...edits.added]);
+
     await db.execute('DELETE FROM Event_Donor WHERE event_id = ?', [eventId]);
-    for (const donorId of edits.added) {
+
+    for (const donorId of finalSet) {
       await db.execute('INSERT INTO Event_Donor (event_id, donor_id) VALUES (?, ?)', [eventId, donorId]);
     }
+
     tempDonorEdits.delete(eventId);
     res.json({ message: 'Donor list saved' });
   } catch (err) {
