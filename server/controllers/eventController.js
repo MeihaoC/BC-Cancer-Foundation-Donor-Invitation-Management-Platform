@@ -72,7 +72,6 @@ exports.searchEvents = async (req, res) => {
     );
     const countMap = Object.fromEntries(donorCounts.map(r => [r.event_id, r.count]));
 
-    // Enrich with computed status
     const enriched = events.map(e => ({
       id: e.id,
       name: e.name,
@@ -85,7 +84,6 @@ exports.searchEvents = async (req, res) => {
       status: getStatus(countMap[e.id] || 0, e.capacity),
     }));
 
-    // Apply filter (if q is provided)
     const filtered = q
       ? enriched.filter(e =>
           Object.values(e).some(val =>
