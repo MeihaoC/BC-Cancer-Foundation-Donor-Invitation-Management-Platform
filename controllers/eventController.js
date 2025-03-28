@@ -252,11 +252,21 @@ exports.saveDonorList = async (req, res) => {
   const { eventId } = req.params;
   const edits = tempDonorEdits.get(eventId);
   if (!edits) return res.status(400).json({ error: 'No edits to save' });
+
   try {
+    const [existing] = await db.execute('SELECT donor_id FROM Event_Donor WHERE event_id = ?', [eventId]);
+    const kept = existing
+      .map(r => r.donor_id)
+      .filter(id => !edits.removed.has(id));
+
+    const finalSet = new Set([...kept, ...edits.added]);
+
     await db.execute('DELETE FROM Event_Donor WHERE event_id = ?', [eventId]);
-    for (const donorId of edits.added) {
+
+    for (const donorId of finalSet) {
       await db.execute('INSERT INTO Event_Donor (event_id, donor_id) VALUES (?, ?)', [eventId, donorId]);
     }
+
     tempDonorEdits.delete(eventId);
     res.json({ message: 'Donor list saved' });
   } catch (err) {
