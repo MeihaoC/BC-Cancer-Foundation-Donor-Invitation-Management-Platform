@@ -85,12 +85,21 @@ exports.searchEvents = async (req, res) => {
     }));
 
     const filtered = q
-      ? enriched.filter(e =>
-          Object.values(e).some(val =>
+      ? enriched.filter(e => {
+          const searchableFields = [
+            e.name,
+            e.city,
+            e.medical_focus,
+            e.coordinator,
+            e.fundraiser,
+            e.status
+          ];
+          return searchableFields.some(val =>
             String(val).toLowerCase().includes(q.toLowerCase())
-          )
-        )
+          );
+        })
       : enriched;
+
 
     res.json(filtered);
   } catch (err) {
