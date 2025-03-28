@@ -371,6 +371,8 @@ exports.getEventDetails = async (req, res) => {
       return res.status(404).json({ error: 'Event not found' });
     }
 
+    event.date = event.date.toISOString().split('T')[0];
+
     res.json(event);
   } catch (err) {
     console.error(err);
