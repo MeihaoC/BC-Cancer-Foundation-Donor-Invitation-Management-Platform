@@ -56,7 +56,7 @@ exports.getEvents = async (req, res) => {
 exports.searchEvents = async (req, res) => {
   const { q } = req.query;
   try {
-    let query = `
+    const [events] = await db.execute(`
       SELECT e.id, e.name, e.date, e.city, e.capacity, 
              mf.name AS medical_focus, 
              u1.name AS coordinator, 
@@ -65,30 +65,14 @@ exports.searchEvents = async (req, res) => {
       JOIN Medical_Focus mf ON e.medical_focus_id = mf.id
       JOIN User u1 ON e.coordinator_id = u1.id
       JOIN User u2 ON e.fundraiser_id = u2.id
-      WHERE 1=1
-    `;
-    const params = [];
-
-    if (q) {
-      query += `
-        AND (
-          e.name LIKE ? OR
-          e.city LIKE ? OR
-          mf.name LIKE ? OR
-          u1.name LIKE ? OR
-          u2.name LIKE ?
-        )
-      `;
-      for (let i = 0; i < 5; i++) params.push(`%${q}%`);
-    }
-
-    const [events] = await db.execute(query, params);
+    `);
 
     const [donorCounts] = await db.execute(
       'SELECT event_id, COUNT(*) AS count FROM Event_Donor GROUP BY event_id'
     );
     const countMap = Object.fromEntries(donorCounts.map(r => [r.event_id, r.count]));
 
+    // Enrich with computed status
     const enriched = events.map(e => ({
       id: e.id,
       name: e.name,
@@ -101,12 +85,23 @@ exports.searchEvents = async (req, res) => {
       status: getStatus(countMap[e.id] || 0, e.capacity),
     }));
 
-    res.json(enriched);
+    // Apply filter (if q is provided)
+    const filtered = q
+      ? enriched.filter(e =>
+          Object.values(e).some(val =>
+            String(val).toLowerCase().includes(q.toLowerCase())
+          )
+        )
+      : enriched;
+
+    res.json(filtered);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to search events' });
   }
 };
+
+
 
 exports.createEvent = async (req, res) => {
   const {
