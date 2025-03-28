@@ -380,7 +380,8 @@ exports.getDonorListForEvent = async (req, res) => {
   const { eventId } = req.params;
   try {
     const [donors] = await db.execute(`
-      SELECT CONCAT(d.first_name, ' ', d.last_name) AS name,
+      SELECT d.id,
+             CONCAT(d.first_name, ' ', d.last_name) AS name,
              d.total_donation,
              d.city,
              GROUP_CONCAT(mf.name) AS medical_focus,

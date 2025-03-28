@@ -314,7 +314,7 @@ function SingleEventPage() {
     // Save edited donor list
     const handleSaveEdit = async () => {
         try {
-            await axios.post(`http://localhost:5001/api/events/${eventId}/donor/save`);
+            await axios.post(`http://localhost:5001/api/events/${eventId}/donors/save`);
             const donorsResponse = await axios.get(`http://localhost:5001/api/events/${eventId}/donors`);
             setDonors(donorsResponse.data || []);
             setIsEditingFinalList(false);
