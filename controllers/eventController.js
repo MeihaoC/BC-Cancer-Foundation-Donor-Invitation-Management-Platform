@@ -26,7 +26,8 @@ exports.login = async (req, res) => {
 exports.getEvents = async (req, res) => {
   try {
     const [events] = await db.execute(`
-      SELECT 
+      SELECT
+        e.id,
         e.name, e.date, e.city, e.capacity,
         mf.name AS medical_focus,
         c.name AS coordinator,
