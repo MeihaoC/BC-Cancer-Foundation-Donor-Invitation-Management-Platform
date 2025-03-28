@@ -58,11 +58,13 @@ export default function EventPage() {
     const validateForm = () => {
         let newErrors = {};
         Object.keys(newEvent).forEach((key) => {
-            if (!newEvent[key]) {
+            if (key !== "capacity" && !newEvent[key]) {
                 newErrors[key] = "This field is required";
             }
         });
-        if (newEvent.capacity <= 0) {
+        if (newEvent.capacity === "" || newEvent.capacity === undefined || newEvent.capacity === null) {
+            newErrors.capacity = "This field is required";
+        } else if (Number(newEvent.capacity) <= 0) {
             newErrors.capacity = "Capacity must be a positive integer";
         }
         setErrors(newErrors);
@@ -111,8 +113,24 @@ export default function EventPage() {
         }
     };
 
+    // Cancel handler: reset form and hide it
+    const handleCancelEvent = () => {
+        setIsFormVisible(false);
+        setNewEvent({
+            eventName: "",
+            date: "",
+            city: "",
+            location: "",
+            medicalFocus: "",
+            capacity: "",
+            coordinator: "",
+            fundraiser: "",
+            description: ""
+        });
+        setErrors({});
+    }
+
     // Search handler: search events by name
-    // ***TODO: Send all events when search term is empty
     const handleSearch = async (e) => {
         e.preventDefault();
         try {
@@ -289,7 +307,7 @@ export default function EventPage() {
                         </div>
                     ))}
                     <div className="form-buttons">
-                        <button onClick={() => setIsFormVisible(false)}>Cancel</button>
+                        <button onClick={handleCancelEvent}>Cancel</button>
                         <button onClick={handleAddEvent}>Submit</button>
                     </div>
                 </div>
