@@ -187,12 +187,20 @@ exports.suggestDonors = async (req, res) => {
     const [saved] = await db.execute('SELECT donor_id FROM Event_Donor WHERE event_id = ?', [eventId]);
     const savedIds = new Set(saved.map(r => r.donor_id));
     const edits = tempDonorEdits.get(eventId) || { added: new Set(), removed: new Set() };
-    const matches = [];
-    const used = new Set([...savedIds, ...edits.added]);
 
     const selectedCity = req.query.city || event.city;
     const selectedFocus = req.query.medical_focus || event.medical_focus;
     const selectedEngagement = req.query.engagement || 'Highly Engaged';
+
+    const engagementRank = {
+      'Highly Engaged': 3,
+      'Moderately Engaged': 2,
+      'Rarely Engaged': 1
+    };
+
+    const isEligible = (d) => {
+      return !edits.added.has(d.id) && !savedIds.has(d.id) || edits.removed.has(d.id);
+    };        
 
     const filters = [
       d => d.city === selectedCity && d.medical_focus.includes(selectedFocus) && d.engagement === selectedEngagement,
@@ -204,18 +212,25 @@ exports.suggestDonors = async (req, res) => {
       d => d.medical_focus.includes(selectedFocus)
     ];
 
+    const matches = [];
+    const used = new Set();
+
     for (const filter of filters) {
-      for (const d of donors) {
+      const tierMatches = donors
+        .filter(d => !used.has(d.id) && isEligible(d) && filter(d))
+        .sort((a, b) => engagementRank[b.engagement] - engagementRank[a.engagement]);
+    
+      for (const d of tierMatches) {
         if (matches.length >= event.capacity * 2) break;
-        if (!used.has(d.id) && filter(d)) {
-          matches.push(d);
-          used.add(d.id);
-        }
+        matches.push(d);
+        used.add(d.id);
       }
-    }
+    
+      if (matches.length >= event.capacity * 2) break;
+    }    
 
     while (matches.length < event.capacity * 2) {
-      const remaining = donors.filter(d => !used.has(d.id));
+      const remaining = donors.filter(d => !used.has(d.id) && isEligible(d));
       if (!remaining.length) break;
       const pick = remaining[Math.floor(Math.random() * remaining.length)];
       matches.push(pick);
