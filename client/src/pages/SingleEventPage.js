@@ -335,6 +335,7 @@ function SingleEventPage() {
             setWasBestMatchedDonors([]);
             setWasMatchedDonors([]);
             alert("Donor list updated!");
+            window.location.reload(); // Reload the page to reflect changes
         } catch (error) {
             console.error("Failed to update donor list:", error);
             alert("Failed to update donor list");
