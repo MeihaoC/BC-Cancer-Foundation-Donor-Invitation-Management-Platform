@@ -280,7 +280,14 @@ exports.removeDonorTemp = (req, res) => {
 exports.saveDonorList = async (req, res) => {
   const { eventId } = req.params;
   const edits = tempDonorEdits.get(eventId);
-  if (!edits) return res.status(400).json({ error: 'No edits to save' });
+  if (!edits) {
+    return res.json({ message: 'No changes made to donor list' });
+  }
+
+  if (edits.added.size === 0 && edits.removed.size === 0) {
+    tempDonorEdits.delete(eventId);
+    return res.json({ message: 'No changes made to donor list' });
+  }
 
   try {
     const [existing] = await db.execute('SELECT donor_id FROM Event_Donor WHERE event_id = ?', [eventId]);
@@ -304,6 +311,7 @@ exports.saveDonorList = async (req, res) => {
   }
 };
 
+
 exports.cancelDonorEdits = (req, res) => {
   tempDonorEdits.delete(req.params.eventId);
   res.json({ message: 'Donor edits canceled' });
@@ -323,9 +331,11 @@ exports.searchDonorByName = async (req, res) => {
       FROM Donor d
       JOIN Donor_Medical_Focus dm ON d.id = dm.donor_id
       JOIN Medical_Focus mf ON dm.medical_focus_id = mf.id
-      WHERE (d.first_name LIKE ? OR d.last_name LIKE ?)
+      WHERE CONCAT(d.first_name, ' ', d.last_name) LIKE ?
+         OR d.first_name LIKE ?
+         OR d.last_name LIKE ?
       GROUP BY d.id
-    `, [`%${name}%`, `%${name}%`]);
+    `, [`%${name}%`, `%${name}%`, `%${name}%`]);
 
     const filtered = results.filter(d =>
       (!savedIds.has(d.id) || edits.removed.has(d.id)) && !edits.added.has(d.id)
@@ -337,6 +347,7 @@ exports.searchDonorByName = async (req, res) => {
     res.status(500).json({ error: 'Donor search failed' });
   }
 };
+
 
 exports.exportDonorsCSV = async (req, res) => {
   const { eventId } = req.params;
