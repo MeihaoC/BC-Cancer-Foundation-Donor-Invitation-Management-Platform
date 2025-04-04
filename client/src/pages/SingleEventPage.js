@@ -4,7 +4,9 @@ import "../css/SingleEventPage.css";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import DonorTable from "../components/DonorTable";
-import { IoArrowBack } from "react-icons/io5";
+import { IoArrowBack, IoLocationSharp, IoCalendarOutline } from "react-icons/io5";
+import { MdDelete, MdEdit } from "react-icons/md";
+import { FaUser, FaHospital, FaUsers, FaMapMarkedAlt } from "react-icons/fa";
 import Topbar from "../components/Topbar";
 import Sidebar from "../components/Sidebar";
 
@@ -364,47 +366,78 @@ function SingleEventPage() {
                 <Sidebar />
                 <div className="content">
                     <div className="event-container">
-                        <div>
-                            <button className="back-button" onClick={() => navigate("/events")}><IoArrowBack /> Back</button>
-                        </div>
-                        <div className="event-header">
-                            <h1>{event.name}</h1>
-                            <button className="delete-button" onClick={handleDelete}>Delete</button>
-                        </div>
-                        <div className="event-details-container">
-                            <div className="event-details">
-                                <p>Event Date</p>
-                                <p><strong>{event.date}</strong></p>
+                        <button className="back-button" onClick={() => navigate("/events")}>
+                            <IoArrowBack className="icon"/>
+                        </button>
+                        <div className="event-container-main">
+                            <div className="event-header">
+                                <h1>{event.name}</h1>
+                                <div className="donor-edit-buttons">
+                                    <button className="delete-button" onClick={handleDelete}>
+                                        <MdDelete className="icon"/>  Delete
+                                    </button>
+                                    <button className="edit-button">
+                                        <MdEdit className="icon"/>  Edit
+                                    </button>
+                                </div>
                             </div>
-                            <div className="event-details">
-                                <p>Event Location</p>
-                                <p><strong>{event.location}</strong></p>
+                            <div className="event-details-grid">
+                                <div className="event-card">
+                                    <IoCalendarOutline className="icon" />
+                                    <div className="event-card-content">
+                                        <p>Event Date</p>
+                                        <strong>{event.date}</strong>
+                                    </div>
+                                </div>
+                                <div className="event-card">
+                                    <IoLocationSharp className="icon" />
+                                    <div className="event-card-content">
+                                        <p>Event Location</p>
+                                        <strong>{event.location}</strong>
+                                    </div>
+                                </div>
+                                <div className="event-card">
+                                    <FaMapMarkedAlt className="icon" />
+                                    <div className="event-card-content">
+                                        <p>Event City</p>
+                                        <strong>{event.city}</strong>
+                                    </div>
+                                </div>
+                                <div className="event-card">
+                                    <FaHospital className="icon" />
+                                    <div className="event-card-content">
+                                        <p>Medical Focus</p>
+                                        <span className="medical-focus">{event.medical_focus}</span>
+                                    </div>
+                                </div>
+                                <div className="event-card">
+                                    <FaUsers className="icon" />
+                                    <div className="event-card-content">
+                                        <p>Capacity</p>
+                                        <strong>{event.capacity}</strong>
+                                    </div>
+                                </div>
+                                <div className="event-card">
+                                    <FaUser className="icon" />
+                                    <div className="event-card-content">
+                                        <p>Coordinator</p>
+                                        <strong>{event.coordinator}</strong>
+                                    </div>
+                                </div>
+                                <div className="event-card">
+                                    <FaUser className="icon" />
+                                    <div className="event-card-content">
+                                        <p>Fundraiser</p>
+                                        <strong>{event.fundraiser}</strong>
+                                    </div>
+                                </div>
                             </div>
-                            <div className="event-details">
-                                <p>City</p>
-                                <p><strong>{event.city}</strong></p>
-                            </div>
-                            <div className="event-details">
-                                <p>Medical Focus</p>
-                                <p><strong>{event.medical_focus}</strong></p>
-                            </div>
-                            <div className="event-details">
-                                <p>Capacity</p>
-                                <p><strong>{event.capacity}</strong></p>
-                            </div>
-                            <div className="event-details">
-                                <p>Coordinator</p>
-                                <p><strong>{event.coordinator}</strong></p>
-                            </div>
-                            <div className="event-details">
-                                <p>Fundraiser</p>
-                                <p><strong>{event.fundraiser}</strong></p>
-                            </div>
-                            <div className="event-details-info">
-                                <p><strong>Detailed Information</strong></p>
+                            <div className="detailed-info">
+                                <h3>Detailed Information</h3>
                                 <p>{event.detailed_info}</p>
                             </div>
                         </div>
+
                         <div className="donor-container">
                             {/* A) No donor list exists: show Generate button */}
                             {!isFormVisible && !isGenerating && !isEditingFinalList && (

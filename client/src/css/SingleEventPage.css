@@ -37,6 +37,11 @@
     max-width: 1200px;
     padding: 0 5%;
   }
+
+  .event-container-main {
+    margin-left: 8px;
+    margin-right: 8px;
+  }
   
   .event-header {
     display: flex;
@@ -65,29 +70,58 @@
     background-color: var(--danger-hover);
   }
   
-  .event-details-container {
+  .event-details-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
-    margin-bottom: 24px;
-  }
-  
-  .event-details p {
-    margin: 4px 0;
-    color: var(--text-light);
-  }
-  
-  .event-details strong {
-    color: var(--text-dark);
-  }
-  
-  .event-details-info {
-    grid-column: span 2;
-    margin-top: 8px;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.event-card {
+    background: #f8f9fb;
+    padding: 15px;
     border-radius: 8px;
-    background: beige;
-    padding: 8px 16px;
-  }
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.event-card .icon {
+    color: #007bff;
+    font-size: 18px;
+    margin-bottom: 5px;
+    flex-shrink: 0;
+}
+
+.event-card-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.icon {
+  margin-right: 5px;
+}
+
+.back-button .icon {
+  font-size: 30px;
+  color: #007bff;
+}
+
+.medical-focus {
+    background: #d4edda;
+    color: #155724;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 16px;
+}
+  
+.detailed-info {
+  background: beige;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
   
   .donor-container {
     margin-top: 24px;
@@ -106,7 +140,7 @@
   }
   
   /* General button styling for donor container */
-  .donor-container button, .back-button {
+  .donor-container button, .edit-button {
     background-color: var(--primary-color);
     color: white;
     padding: 6px 10px;
@@ -118,9 +152,21 @@
     text-align: center;
   }
   
-  .donor-container button:hover {
+  .donor-container button:hover, .edit-button:hover {
     background-color: var(--primary-hover);
   }
+
+  .back-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    margin-top: 18px;
+    margin-bottom: 18px;
+  }
+
+  .back-button:hover {
+    opacity: 0.7;
+}
   
   /* Donor table styles */
   .donor-table {
@@ -157,15 +203,8 @@
   }
   
   .generate-button button {
-    padding: 8px 12px;
-    border: none;
     background-color: var(--success-color);
-    color: white;
-    border-radius: var(--border-radius);
-    cursor: pointer;
-    display: block;
-    min-width: var(--min-btn-width);
-    text-align: center;
+    padding: 6px 10px;
   }
   
   .generate-button button:hover {
@@ -195,7 +234,6 @@
   
   .donor-edit-buttons,
   .donor-add-form-actions {
-    margin-top: 12px;
     display: flex;
     gap: 8px;
   }
@@ -204,6 +242,10 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+  }
+
+  button {
+    font-size: 16px;
   }
   
   /* Responsive adjustments */
