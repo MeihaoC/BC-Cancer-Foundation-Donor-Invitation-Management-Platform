@@ -327,6 +327,11 @@ exports.cancelDonorEdits = (req, res) => {
 exports.searchDonorByName = async (req, res) => {
   const { name } = req.query;
   const { eventId } = req.params;
+
+  if (!name || name.trim() === '') {
+    return res.json([]);
+  }
+
   try {
     const edits = tempDonorEdits.get(eventId) || { added: new Set(), removed: new Set() };
     const [saved] = await db.execute('SELECT donor_id FROM Event_Donor WHERE event_id = ?', [eventId]);
@@ -354,6 +359,7 @@ exports.searchDonorByName = async (req, res) => {
     res.status(500).json({ error: 'Donor search failed' });
   }
 };
+
 
 exports.exportDonorsCSV = async (req, res) => {
   const { eventId } = req.params;
