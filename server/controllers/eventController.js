@@ -487,3 +487,62 @@ exports.deleteEvent = async (req, res) => {
     res.status(500).json({ error: 'Failed to delete event' });
   }
 };
+
+exports.updateEvent = async (req, res) => {
+  const { eventId } = req.params;
+  const {
+    name,
+    date,
+    city,
+    location,
+    medical_focus,
+    capacity,
+    coordinator,
+    fundraiser,
+    details
+  } = req.body;
+
+  try {
+    const [[focusRow]] = await db.execute(
+      'SELECT id FROM Medical_Focus WHERE name = ?',
+      [medical_focus]
+    );
+    if (!focusRow) return res.status(400).json({ error: 'Invalid medical focus' });
+
+    const [[coordRow]] = await db.execute(
+      'SELECT id FROM User WHERE name = ?',
+      [coordinator]
+    );
+    if (!coordRow) return res.status(400).json({ error: 'Invalid coordinator' });
+
+    const [[fundRow]] = await db.execute(
+      'SELECT id FROM User WHERE name = ?',
+      [fundraiser]
+    );
+    if (!fundRow) return res.status(400).json({ error: 'Invalid fundraiser' });
+
+    await db.execute(
+      `UPDATE Event 
+       SET name = ?, date = ?, location = ?, city = ?, medical_focus_id = ?, capacity = ?, coordinator_id = ?, fundraiser_id = ?, detailed_info = ?
+       WHERE id = ?`,
+      [
+        name,
+        date,
+        location,
+        city,
+        focusRow.id,
+        capacity,
+        coordRow.id,
+        fundRow.id,
+        details,
+        eventId
+      ]
+    );
+
+    res.json({ message: 'Event updated successfully' });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to update event' });
+  }
+};
