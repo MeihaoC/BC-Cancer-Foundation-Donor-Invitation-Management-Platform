@@ -38,11 +38,14 @@ exports.getEvents = async (req, res) => {
       JOIN User f ON e.fundraiser_id = f.id
     `);
 
-    const [donorCounts] = await db.execute('SELECT event_id, COUNT(*) AS count FROM Event_Donor GROUP BY event_id');
+    const [donorCounts] = await db.execute(
+      'SELECT event_id, COUNT(*) AS count FROM Event_Donor GROUP BY event_id'
+    );
     const countMap = Object.fromEntries(donorCounts.map(r => [r.event_id, r.count]));
 
     const enriched = events.map(e => ({
       ...e,
+      date: new Date(e.date).toISOString().split('T')[0],
       status: getStatus(countMap[e.id] || 0, e.capacity)
     }));
 
@@ -53,8 +56,15 @@ exports.getEvents = async (req, res) => {
   }
 };
 
+
 exports.searchEvents = async (req, res) => {
-  const { q } = req.query;
+  const { field, query } = req.query;
+
+  const allowedFields = ['name', 'city', 'medical_focus', 'coordinator', 'fundraiser', 'status'];
+  if (!allowedFields.includes(field)) {
+    return res.status(400).json({ error: 'Invalid search field' });
+  }
+
   try {
     const [events] = await db.execute(`
       SELECT e.id, e.name, e.date, e.city, e.capacity, 
@@ -84,22 +94,14 @@ exports.searchEvents = async (req, res) => {
       status: getStatus(countMap[e.id] || 0, e.capacity),
     }));
 
-    const filtered = q
-      ? enriched.filter(e => {
-          const searchableFields = [
-            e.name,
-            e.city,
-            e.medical_focus,
-            e.coordinator,
-            e.fundraiser,
-            e.status
-          ];
-          return searchableFields.some(val =>
-            String(val).toLowerCase().includes(q.toLowerCase())
-          );
-        })
-      : enriched;
+    let filtered = enriched;
 
+    if (field && query) {
+      filtered = enriched.filter(e => {
+        const value = e[field];
+        return value && String(value).toLowerCase().includes(query.toLowerCase());
+      });
+    }
 
     res.json(filtered);
   } catch (err) {
@@ -107,7 +109,6 @@ exports.searchEvents = async (req, res) => {
     res.status(500).json({ error: 'Failed to search events' });
   }
 };
-
 
 
 exports.createEvent = async (req, res) => {
@@ -184,6 +185,11 @@ exports.suggestDonors = async (req, res) => {
       GROUP BY d.id
     `);
 
+    const donorsWithArrayFocus = donors.map(d => ({
+      ...d,
+      medical_focus: d.medical_focus ? d.medical_focus.split(',') : []
+    }));
+
     const [saved] = await db.execute('SELECT donor_id FROM Event_Donor WHERE event_id = ?', [eventId]);
     const savedIds = new Set(saved.map(r => r.donor_id));
     const edits = tempDonorEdits.get(eventId) || { added: new Set(), removed: new Set() };
@@ -199,8 +205,8 @@ exports.suggestDonors = async (req, res) => {
     };
 
     const isEligible = (d) => {
-      return !edits.added.has(d.id) && !savedIds.has(d.id) || edits.removed.has(d.id);
-    };        
+      return (!edits.added.has(d.id) && !savedIds.has(d.id)) || edits.removed.has(d.id);
+    };
 
     const filters = [
       d => d.city === selectedCity && d.medical_focus.includes(selectedFocus) && d.engagement === selectedEngagement,
@@ -216,21 +222,21 @@ exports.suggestDonors = async (req, res) => {
     const used = new Set();
 
     for (const filter of filters) {
-      const tierMatches = donors
+      const tierMatches = donorsWithArrayFocus
         .filter(d => !used.has(d.id) && isEligible(d) && filter(d))
         .sort((a, b) => engagementRank[b.engagement] - engagementRank[a.engagement]);
-    
+
       for (const d of tierMatches) {
         if (matches.length >= event.capacity * 2) break;
         matches.push(d);
         used.add(d.id);
       }
-    
+
       if (matches.length >= event.capacity * 2) break;
-    }    
+    }
 
     while (matches.length < event.capacity * 2) {
-      const remaining = donors.filter(d => !used.has(d.id) && isEligible(d));
+      const remaining = donorsWithArrayFocus.filter(d => !used.has(d.id) && isEligible(d));
       if (!remaining.length) break;
       const pick = remaining[Math.floor(Math.random() * remaining.length)];
       matches.push(pick);
@@ -245,6 +251,7 @@ exports.suggestDonors = async (req, res) => {
     res.status(500).json({ error: 'Failed to generate donor suggestions' });
   }
 };
+
 
 exports.addDonorTemp = (req, res) => {
   const { eventId } = req.params;
@@ -337,17 +344,16 @@ exports.searchDonorByName = async (req, res) => {
       GROUP BY d.id
     `, [`%${name}%`, `%${name}%`, `%${name}%`]);
 
-    const filtered = results.filter(d =>
-      (!savedIds.has(d.id) || edits.removed.has(d.id)) && !edits.added.has(d.id)
-    );
+    const formatted = results
+      .map(d => ({ ...d, medical_focus: d.medical_focus ? d.medical_focus.split(',') : [] }))
+      .filter(d => (!savedIds.has(d.id) || edits.removed.has(d.id)) && !edits.added.has(d.id));
 
-    res.json(filtered);
+    res.json(formatted);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Donor search failed' });
   }
 };
-
 
 exports.exportDonorsCSV = async (req, res) => {
   const { eventId } = req.params;
@@ -426,7 +432,12 @@ exports.getDonorListForEvent = async (req, res) => {
       GROUP BY d.id
     `, [eventId]);
 
-    res.json(donors);
+    const formatted = donors.map(d => ({
+      ...d,
+      medical_focus: d.medical_focus ? d.medical_focus.split(',') : []
+    }));
+
+    res.json(formatted);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to fetch donor list' });
