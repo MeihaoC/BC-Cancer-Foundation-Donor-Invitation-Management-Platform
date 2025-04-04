@@ -43,7 +43,10 @@ function Login() {
                     <h2>Login</h2>
                     <form onSubmit={handleSubmit}>
                     <div className="input-group">
-                            <label>Email:</label>
+                            <label>
+                                Email:
+                                <span className="required-star">*</span>
+                            </label>
                             <input
                                 type="email"
                                 value={email}
@@ -54,7 +57,10 @@ function Login() {
                         </div>
 
                         <div className="input-group">
-                            <label>Password:</label>
+                            <label>
+                                Password:
+                                <span className="required-star">*</span>
+                            </label>
                             <input
                                 type="password"
                                 value={password}
