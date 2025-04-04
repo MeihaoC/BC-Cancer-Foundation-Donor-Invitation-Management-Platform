@@ -1,117 +1,159 @@
+.app-container {
+  display: flex;
+  flex-direction: column;
+  background-color: #f5f5f5;
+  min-height: 100vh;
+  color: #000;
+}
+
+.main-content {
+  display: flex;
+  flex: 1;
+}
+
+.content {
+  flex: 1;
+  padding: 20px;
+  background-color: #fff;
+}
+
 .event-container {
     padding: 16px;
-  }
+}
   
-  .event-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 16px;
-  }
+.event-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
   
-  .event-title {
-    font-size: 24px;
-    font-weight: bold;
-  }
+.event-title {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.search-input {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-right: 8px;
+}
+
+.add-button {
+  background-color: #3b82f6;
+  color: white;
+  padding: 8px 12px;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+}
   
-  .add-button {
-    background-color: #3b82f6;
-    color: white;
-    padding: 8px 12px;
-    border: none;
-    cursor: pointer;
-    border-radius: 4px;
-  }
+.search-icon {
+  color: gray;
+}
   
-  .search-container {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 16px;
-  }
+.search-input {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
   
-  .search-icon {
-    color: gray;
-  }
+.event-table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid #ddd;
+}
   
-  .search-input {
-    flex: 1;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-  }
+.event-table th, .event-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
   
-  .event-table {
-    width: 100%;
-    border-collapse: collapse;
-    border: 1px solid #ddd;
-  }
+.event-table th {
+  background-color: #f4f4f4;
+}
   
-  .event-table th, .event-table td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: left;
-  }
+.event-name a {
+  color: #3b82f6;
+  text-decoration: none;
+}
   
-  .event-table th {
-    background-color: #f4f4f4;
-  }
+.event-name a:hover {
+  text-decoration: underline;
+}  
   
-  .event-name a {
-    color: #3b82f6;
-    text-decoration: none;
-  }
+.fully-invited {
+  background-color: #10b981;
+  color: white;
+}
   
-  .event-name a:hover {
-    text-decoration: underline;
-  }  
+.in-process {
+  background-color: #facc15;
+  color: black;
+}
   
-  .fully-invited {
-    background-color: #10b981;
-    color: white;
-  }
+.not-started {
+  background-color: #ef4444;
+  color: white;
+}
   
-  .in-process {
-    background-color: #facc15;
-    color: black;
-  }
+.default-status {
+  background-color: #e5e7eb;
+  color: black;
+}
   
-  .not-started {
-    background-color: #ef4444;
-    color: white;
-  }
+.no-events {
+  text-align: center;
+  padding: 16px;
+  color: gray;
+}
   
-  .default-status {
-    background-color: #e5e7eb;
-    color: black;
-  }
-  
-  .no-events {
-    text-align: center;
-    padding: 16px;
-    color: gray;
-  }
-  
-  .pagination {
-    margin-top: 16px;
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-  }
-  
-  .pagination button {
-    padding: 8px 12px;
-    border: none;
-    background-color: #3b82f6;
-    color: white;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-  
-  .pagination button:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
-  }
+/* Wrapper to align pagination to the right */
+.pagination-wrapper {
+  text-align: right;
+  margin: 16px 0;
+}
+
+/* Pagination Container: shrink to fit its children */
+.pagination {
+  display: inline-flex; /* inline-flex makes the container fit its children */
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+/* Each Page Item */
+.pagination .page-item {
+  padding: 8px 16px;
+  cursor: pointer;
+  color: #3b82f6;
+  border-right: 1px solid #ddd;
+  background-color: #fff;
+}
+
+/* Remove border from the last item */
+.pagination .page-item:last-child {
+  border-right: none;
+}
+
+/* Active Page */
+.pagination .page-item.active {
+  background-color: #3b82f6;
+  color: #fff;
+}
+
+/* Disabled State (Previous/Next) */
+.pagination .page-item.disabled {
+  color: #ccc;
+  cursor: not-allowed;
+}
 
 /* Styling for the Add New Event Form */
 .event-form {

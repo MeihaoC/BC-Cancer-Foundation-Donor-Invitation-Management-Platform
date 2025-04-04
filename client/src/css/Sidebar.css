@@ -1,0 +1,21 @@
+.sidebar {
+    background-color: #1e293b;
+    color: #fff;
+    width: 200px;
+    padding: 20px;
+    min-height: 100vh;
+  }
+  
+  .sidebar nav a {
+    display: flex;
+    align-items: center;
+    color: #fff;
+    text-decoration: none;
+    padding: 10px 0;
+  }
+  
+  .sidebar nav a .icon {
+    margin-right: 10px;
+    font-size: 18px;
+  }
+  

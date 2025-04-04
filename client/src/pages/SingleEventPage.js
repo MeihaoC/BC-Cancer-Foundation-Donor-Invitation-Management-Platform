@@ -5,6 +5,8 @@ import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import DonorTable from "../components/DonorTable";
 import { IoArrowBack } from "react-icons/io5";
+import Topbar from "../components/Topbar";
+import Sidebar from "../components/Sidebar";
 
 // API: '/events/:eventId'
 function SingleEventPage() {
@@ -356,202 +358,93 @@ function SingleEventPage() {
     }
 
     return (
-        <div className="event-container">
-            <div>
-                <button className="back-button" onClick={() => navigate("/events")}><IoArrowBack /> Back</button>
-            </div>
-            <div className="event-header">
-                <h1>{event.name}</h1>
-                <button className="delete-button" onClick={handleDelete}>Delete</button>
-            </div>
-            <div className="event-details-container">
-                <div className="event-details">
-                    <p>Event Date</p>
-                    <p><strong>{event.date}</strong></p>
-                </div>
-                <div className="event-details">
-                    <p>Event Location</p>
-                    <p><strong>{event.location}</strong></p>
-                </div>
-                <div className="event-details">
-                    <p>City</p>
-                    <p><strong>{event.city}</strong></p>
-                </div>
-                <div className="event-details">
-                    <p>Medical Focus</p>
-                    <p><strong>{event.medical_focus}</strong></p>
-                </div>
-                <div className="event-details">
-                    <p>Capacity</p>
-                    <p><strong>{event.capacity}</strong></p>
-                </div>
-                <div className="event-details">
-                    <p>Coordinator</p>
-                    <p><strong>{event.coordinator}</strong></p>
-                </div>
-                <div className="event-details">
-                    <p>Fundraiser</p>
-                    <p><strong>{event.fundraiser}</strong></p>
-                </div>
-                <div className="event-details-info">
-                    <p><strong>Detailed Information</strong></p>
-                    <p>{event.detailed_info}</p>
-                </div>
-            </div>
-            <div className="donor-container">
-                {/* A) No donor list exists: show Generate button */}
-                {!isFormVisible && !isGenerating && !isEditingFinalList && (
-                    <div className="generate-button">
-                        <button onClick={handleGenerateDonorList}>
-                            Generate Donor List
-                        </button>
-                    </div>
-                )}
-
-                {/* B) Generating a new donor list from scratch */}
-                {isGenerating && (
-                    <div className="donor-edit-form">
-                        <h2>Generate Donor List</h2>
-                        <div className="tab-container">
-                            <button
-                                className={activeTab === "byFilters" ? "active" : ""}
-                                onClick={() => setActiveTab("byFilters")}
-                            >
-                                By Filters
-                            </button>
-                            <button
-                                className={activeTab === "byName" ? "active" : ""}
-                                onClick={() => setActiveTab("byName")}
-                            >
-                                By Name
-                            </button>
+        <div className="app-container">
+            <Topbar />
+            <div className="main-content">
+                <Sidebar />
+                <div className="content">
+                    <div className="event-container">
+                        <div>
+                            <button className="back-button" onClick={() => navigate("/events")}><IoArrowBack /> Back</button>
                         </div>
-                        {activeTab === "byName" && (
-                            <div className="search-container">
-                                <input
-                                    type="text"
-                                    value={searchName}
-                                    onChange={(e) => setSearchName(e.target.value)}
-                                    placeholder="Search donor name"
-                                />
-                                <button onClick={handleSearchByName}>Search</button>
-                            </div>
-                        )}
-                        {activeTab === "byFilters" && (
-                        <div className="filter-container">
-                            <select value={filterCity} onChange={(e) => setFilterCity(e.target.value)}>
-                                {cityOptions.map((city, idx) => (
-                                    <option key={idx} value={city}>{city}</option>
-                                ))}
-                            </select>
-                            <select value={filterMedicalFocus} onChange={(e) => setFilterMedicalFocus(e.target.value)}>
-                                {medicalFocusOptions.map((focus, idx) => (
-                                    <option key={idx} value={focus}>{focus}</option>
-                                ))}
-                            </select>
-                            <select value={filterEngagement} onChange={(e) => setFilterEngagement(e.target.value)}>
-                                <option value="Highly Engaged">Highly Engaged</option>
-                                <option value="Moderately Engaged">Moderately Engaged</option>
-                                <option value="Rarely Engaged">Rarely Engaged</option>
-                            </select>
-                            <button onClick={handleApplyFilters}>Apply</button>
+                        <div className="event-header">
+                            <h1>{event.name}</h1>
+                            <button className="delete-button" onClick={handleDelete}>Delete</button>
                         </div>
-                        )}
-
-                        {activeTab === "byName" && matchedDonors.length > 0 && (
-                            <div className="donor-matched-by-name">
-                                <h3>Matched Donors</h3>
-                                <DonorTable donors={matchedDonors} showActions={true} handleAddDonor={handleAddDonor} />
+                        <div className="event-details-container">
+                            <div className="event-details">
+                                <p>Event Date</p>
+                                <p><strong>{event.date}</strong></p>
                             </div>
-                        )}
-
-                        {activeTab === "byFilters" && (
-                            <div className="donor-recommended">
-                                <h3>Best Matched Donors</h3>
-                                <DonorTable donors={bestMatchedDonors} showActions={true} handleAddDonor={handleAddDonor} />
-
-                                <h3>Additional Suitable Donors</h3>
-                                <DonorTable donors={additionalDonors} showActions={true} handleAddDonor={handleAddDonor} />
+                            <div className="event-details">
+                                <p>Event Location</p>
+                                <p><strong>{event.location}</strong></p>
                             </div>
-                        )}
-
-                        { tempDonorList.length > 0 && (
-                            <div>
-                                <h3>Temporary Donor List</h3>
-                                <DonorTable donors={tempDonorList} showActions={true} handleRemoveDonor={handleRemoveDonor}/>
+                            <div className="event-details">
+                                <p>City</p>
+                                <p><strong>{event.city}</strong></p>
                             </div>
-                        )}
-
-                        <div className="donor-edit-actions">
-                            <button onClick={handleCancelGenerate}>Cancel</button>
-                            <button onClick={handleSaveGenerate}>Save</button>
-                        </div>
-                    </div>
-                )}
-
-                {/* C) Finalized donor list view (non-editing) */}
-                {isFormVisible && !isEditingFinalList &&  (
-                    <div className="donor-form">
-                        <div className="donor-header">
-                            <h2>Donor List</h2>
-                            <div className="donor-buttons">                            
-                                <button onClick={handleEditDonorList}>Edit</button>
-                                <button onClick={handleExport}>Export</button>
+                            <div className="event-details">
+                                <p>Medical Focus</p>
+                                <p><strong>{event.medical_focus}</strong></p>
+                            </div>
+                            <div className="event-details">
+                                <p>Capacity</p>
+                                <p><strong>{event.capacity}</strong></p>
+                            </div>
+                            <div className="event-details">
+                                <p>Coordinator</p>
+                                <p><strong>{event.coordinator}</strong></p>
+                            </div>
+                            <div className="event-details">
+                                <p>Fundraiser</p>
+                                <p><strong>{event.fundraiser}</strong></p>
+                            </div>
+                            <div className="event-details-info">
+                                <p><strong>Detailed Information</strong></p>
+                                <p>{event.detailed_info}</p>
                             </div>
                         </div>
-                        <DonorTable donors={donors} showActions={false} />
-                    </div>
-                )}
-
-                {/* D) Editing the finalized donor list */}
-                {isFormVisible && isEditingFinalList && (
-                    <div className="donor-edit-form">
-                        <h2>Edit Donor List</h2>
-                        <DonorTable donors={tempDonorList} showActions={true} handleRemoveDonor={handleRemoveDonor} />
-                        <div className="donor-edit-buttons">
-                            {/* Add Donors button appears in edit mode */}
-                            {!isAddingDonors && (
-                                <div className="add-donors-button">
-                                    <button onClick={handleShowAddDonors}>Add Donors</button>
+                        <div className="donor-container">
+                            {/* A) No donor list exists: show Generate button */}
+                            {!isFormVisible && !isGenerating && !isEditingFinalList && (
+                                <div className="generate-button">
+                                    <button onClick={handleGenerateDonorList}>
+                                        Generate Donor List
+                                    </button>
                                 </div>
                             )}
-                            {/* Cancel and Save buttons */}
-                            <div className="donor-edit-actions">
-                                <button onClick={handleCancelEdit}>Cancel</button>
-                                <button onClick={handleSaveEdit}>Save</button>
-                            </div>
-                        </div>
 
-                        {/* When "Add Donors" is clicked, show additional recommended donor lists */}
-                        {isAddingDonors && (
-                            <div className="donor-add-form">
-                                <h3>Add More Donors</h3>
-                                <div className="tab-container">
-                                    <button
-                                        className={activeTab === "byFilters" ? "active" : ""}
-                                        onClick={() => setActiveTab("byFilters")}
-                                    >
-                                        By Filters
-                                    </button>
-                                    <button
-                                        className={activeTab === "byName" ? "active" : ""}
-                                        onClick={() => setActiveTab("byName")}
-                                    >
-                                        By Name
-                                    </button>
-                                </div>
-                                {activeTab === "byName" && (
-                                    <div className="search-container">
-                                        <input
-                                            type="text"
-                                            value={searchName}
-                                            onChange={(e) => setSearchName(e.target.value)}
-                                            placeholder="Search donor name"
-                                        />
-                                        <button onClick={handleSearchByName}>Search</button>
+                            {/* B) Generating a new donor list from scratch */}
+                            {isGenerating && (
+                                <div className="donor-edit-form">
+                                    <h2>Generate Donor List</h2>
+                                    <div className="tab-container">
+                                        <button
+                                            className={activeTab === "byFilters" ? "active" : ""}
+                                            onClick={() => setActiveTab("byFilters")}
+                                        >
+                                            By Filters
+                                        </button>
+                                        <button
+                                            className={activeTab === "byName" ? "active" : ""}
+                                            onClick={() => setActiveTab("byName")}
+                                        >
+                                            By Name
+                                        </button>
                                     </div>
-                                )}
-                                {activeTab === "byFilters" && (
+                                    {activeTab === "byName" && (
+                                        <div className="search-container">
+                                            <input
+                                                type="text"
+                                                value={searchName}
+                                                onChange={(e) => setSearchName(e.target.value)}
+                                                placeholder="Search donor name"
+                                            />
+                                            <button onClick={handleSearchByName}>Search</button>
+                                        </div>
+                                    )}
+                                    {activeTab === "byFilters" && (
                                     <div className="filter-container">
                                         <select value={filterCity} onChange={(e) => setFilterCity(e.target.value)}>
                                             {cityOptions.map((city, idx) => (
@@ -570,28 +463,145 @@ function SingleEventPage() {
                                         </select>
                                         <button onClick={handleApplyFilters}>Apply</button>
                                     </div>
-                                )}
-                                {activeTab === "byName" && matchedDonors.length > 0 && (
-                                    <div className="donor-matched-by-name">
-                                        <h4>Matched Donors</h4>
-                                        <DonorTable donors={matchedDonors} showActions={true} handleAddDonor={handleAddDonor} />
+                                    )}
+
+                                    {activeTab === "byName" && matchedDonors.length > 0 && (
+                                        <div className="donor-matched-by-name">
+                                            <h3>Matched Donors</h3>
+                                            <DonorTable donors={matchedDonors} showActions={true} handleAddDonor={handleAddDonor} />
+                                        </div>
+                                    )}
+
+                                    {activeTab === "byFilters" && (
+                                        <div className="donor-recommended">
+                                            <h3>Best Matched Donors</h3>
+                                            <DonorTable donors={bestMatchedDonors} showActions={true} handleAddDonor={handleAddDonor} />
+
+                                            <h3>Additional Suitable Donors</h3>
+                                            <DonorTable donors={additionalDonors} showActions={true} handleAddDonor={handleAddDonor} />
+                                        </div>
+                                    )}
+
+                                    { tempDonorList.length > 0 && (
+                                        <div>
+                                            <h3>Temporary Donor List</h3>
+                                            <DonorTable donors={tempDonorList} showActions={true} handleRemoveDonor={handleRemoveDonor}/>
+                                        </div>
+                                    )}
+
+                                    <div className="donor-edit-actions">
+                                        <button onClick={handleCancelGenerate}>Cancel</button>
+                                        <button onClick={handleSaveGenerate}>Save</button>
                                     </div>
-                                )}
-                                { activeTab === "byFilters" && (
-                                    <div className="donor-recommended">
-                                        <h4>Best Matched Donors</h4>
-                                        <DonorTable donors={bestMatchedDonors} showActions={true} handleAddDonor={handleAddDonor} />
-                                        <h4>Additional Suitable Donors</h4>
-                                        <DonorTable donors={additionalDonors} showActions={true} handleAddDonor={handleAddDonor} />
-                                    </div>
-                                )}
-                                <div className="donor-add-form-actions">
-                                    <button onClick={() => setIsAddingDonors(false)}>Close</button>
                                 </div>
-                            </div>
-                        )}
+                            )}
+
+                            {/* C) Finalized donor list view (non-editing) */}
+                            {isFormVisible && !isEditingFinalList &&  (
+                                <div className="donor-form">
+                                    <div className="donor-header">
+                                        <h2>Donor List</h2>
+                                        <div className="donor-buttons">                            
+                                            <button onClick={handleEditDonorList}>Edit</button>
+                                            <button onClick={handleExport}>Export</button>
+                                        </div>
+                                    </div>
+                                    <DonorTable donors={donors} showActions={false} />
+                                </div>
+                            )}
+
+                            {/* D) Editing the finalized donor list */}
+                            {isFormVisible && isEditingFinalList && (
+                                <div className="donor-edit-form">
+                                    <h2>Edit Donor List</h2>
+                                    <DonorTable donors={tempDonorList} showActions={true} handleRemoveDonor={handleRemoveDonor} />
+                                    <div className="donor-edit-buttons">
+                                        {/* Add Donors button appears in edit mode */}
+                                        {!isAddingDonors && (
+                                            <div className="add-donors-button">
+                                                <button onClick={handleShowAddDonors}>Add Donors</button>
+                                            </div>
+                                        )}
+                                        {/* Cancel and Save buttons */}
+                                        <div className="donor-edit-actions">
+                                            <button onClick={handleCancelEdit}>Cancel</button>
+                                            <button onClick={handleSaveEdit}>Save</button>
+                                        </div>
+                                    </div>
+
+                                    {/* When "Add Donors" is clicked, show additional recommended donor lists */}
+                                    {isAddingDonors && (
+                                        <div className="donor-add-form">
+                                            <h3>Add More Donors</h3>
+                                            <div className="tab-container">
+                                                <button
+                                                    className={activeTab === "byFilters" ? "active" : ""}
+                                                    onClick={() => setActiveTab("byFilters")}
+                                                >
+                                                    By Filters
+                                                </button>
+                                                <button
+                                                    className={activeTab === "byName" ? "active" : ""}
+                                                    onClick={() => setActiveTab("byName")}
+                                                >
+                                                    By Name
+                                                </button>
+                                            </div>
+                                            {activeTab === "byName" && (
+                                                <div className="search-container">
+                                                    <input
+                                                        type="text"
+                                                        value={searchName}
+                                                        onChange={(e) => setSearchName(e.target.value)}
+                                                        placeholder="Search donor name"
+                                                    />
+                                                    <button onClick={handleSearchByName}>Search</button>
+                                                </div>
+                                            )}
+                                            {activeTab === "byFilters" && (
+                                                <div className="filter-container">
+                                                    <select value={filterCity} onChange={(e) => setFilterCity(e.target.value)}>
+                                                        {cityOptions.map((city, idx) => (
+                                                            <option key={idx} value={city}>{city}</option>
+                                                        ))}
+                                                    </select>
+                                                    <select value={filterMedicalFocus} onChange={(e) => setFilterMedicalFocus(e.target.value)}>
+                                                        {medicalFocusOptions.map((focus, idx) => (
+                                                            <option key={idx} value={focus}>{focus}</option>
+                                                        ))}
+                                                    </select>
+                                                    <select value={filterEngagement} onChange={(e) => setFilterEngagement(e.target.value)}>
+                                                        <option value="Highly Engaged">Highly Engaged</option>
+                                                        <option value="Moderately Engaged">Moderately Engaged</option>
+                                                        <option value="Rarely Engaged">Rarely Engaged</option>
+                                                    </select>
+                                                    <button onClick={handleApplyFilters}>Apply</button>
+                                                </div>
+                                            )}
+                                            {activeTab === "byName" && matchedDonors.length > 0 && (
+                                                <div className="donor-matched-by-name">
+                                                    <h4>Matched Donors</h4>
+                                                    <DonorTable donors={matchedDonors} showActions={true} handleAddDonor={handleAddDonor} />
+                                                </div>
+                                            )}
+                                            { activeTab === "byFilters" && (
+                                                <div className="donor-recommended">
+                                                    <h4>Best Matched Donors</h4>
+                                                    <DonorTable donors={bestMatchedDonors} showActions={true} handleAddDonor={handleAddDonor} />
+                                                    <h4>Additional Suitable Donors</h4>
+                                                    <DonorTable donors={additionalDonors} showActions={true} handleAddDonor={handleAddDonor} />
+                                                </div>
+                                            )}
+                                            <div className="donor-add-form-actions">
+                                                <button onClick={() => setIsAddingDonors(false)}>Close</button>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
                     </div>
-                )}
+                </div>
             </div>
         </div>
     );
