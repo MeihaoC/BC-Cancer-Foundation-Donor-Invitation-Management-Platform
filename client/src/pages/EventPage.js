@@ -13,7 +13,29 @@ import Sidebar from "../components/Sidebar";
  * Allows users to add new events using a form with validation.
  */
 
+const medicalFocusColorMap = {
+    "Brain Cancer": "tag-brain-cancer",
+    "Breast Cancer": "tag-breast-cancer",
+    "Colon Cancer": "tag-colon-cancer",
+    "Leukemia": "tag-leukemia-cancer",
+    "Lung Cancer": "tag-lung-cancer",
+    "Lymphoma": "tag-lymphoma-cancer",
+    "Ovarian Cancer": "tag-ovarian-cancer",
+    "Pancreatic Cancer": "tag-pancreatic-cancer",
+    "Prostate Cancer": "tag-prostate-cancer",
+    "Skin Cancer": "tag-skin-cancer" 
+};
+
+const statusColorMap = {
+    "Fully Invited": "tag-fully-invited",
+    "In Process": "tag-in-process",
+    "Not Started": "tag-not-started"
+};
+
 export default function EventPage() {
+    // State for search field
+    const [searchField, setSearchField] = useState("name");  // "name" | "city" | "medical_focus"
+    
     // State for search input
     const [searchTerm, setSearchTerm] = useState("");
 
@@ -146,7 +168,8 @@ export default function EventPage() {
         e.preventDefault();
         try {
             console.log("Searching for events with name:", searchTerm);
-            const response = await axios.get(`http://localhost:5001/api/events/search?q=${searchTerm}`);
+            // Update search field in the api
+            const response = await axios.get(`http://localhost:5001/api/events/search?field=${searchField}&q=${searchTerm}`);
             console.log("Events fetched:", response.data);
             setEventData(response.data);
         } catch (err) {
@@ -191,15 +214,26 @@ export default function EventPage() {
                     <div className="event-container">
                         {/* Updated header with search bar on left and add button on right */}
                         <div className="event-header">
-                            <input
-                                className="search-input"
-                                placeholder="Search"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                onKeyDown={(e) => {if (e.key === "Enter") handleSearch(e);}}
-                            />
+                            <div className="search-bar">
+                                <select
+                                className="search-select"
+                                value={searchField}
+                                onChange={(e) => setSearchField(e.target.value)}
+                                >
+                                    <option value="name">Event Name</option>
+                                    <option value="city">City</option>
+                                    <option value="medical_focus">Medical Focus</option>
+                                </select>
+                                <input
+                                    className="search-input"
+                                    placeholder="Search"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    onKeyDown={(e) => {if (e.key === "Enter") handleSearch(e);}}
+                                />
+                            </div>
                             <button className="add-button" onClick={() => setIsFormVisible(true)}>
-                                + ADD
+                                    + ADD event
                             </button>
                         </div>
 
@@ -217,8 +251,11 @@ export default function EventPage() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {currentEvents.map((event) => (
-                                    <tr key={event.id}>
+                                {currentEvents.map((event) => {
+                                    const focusClass = medicalFocusColorMap[event.medical_focus] || "tag-default-focus";
+                                    const statusClass = statusColorMap[event.status] || "tag-default-status";
+                                    return (
+                                        <tr key={event.id}>
                                         <td className="event-name">
                                             <Link to={`/events/${event.id}`} className="event-link">
                                                 {event.name}
@@ -226,15 +263,14 @@ export default function EventPage() {
                                         </td>
                                         <td>{new Date(event.date).toLocaleDateString()}</td>
                                         <td>{event.city}</td>
-                                        <td>{event.medical_focus}</td>
+                                        <td className={focusClass}>{event.medical_focus}</td>
                                         <td>{event.capacity}</td>
                                         <td>{event.coordinator}</td>
                                         <td>{event.fundraiser}</td>
-                                        <td className={`status-${event.status.toLowerCase().replace(" ", "-")}`}>
-                                            {event.status}
-                                        </td>
+                                        <td className={statusClass}>{event.status}</td>
                                     </tr>
-                                ))}
+                                    );
+                                    })}
                             </tbody>
                         </table>
 
@@ -274,75 +310,81 @@ export default function EventPage() {
                             </ul>
                         </div>
 
+                        {/* POPUP MODAL for "Add New Event" */}
                         {isFormVisible && (
-                            <div className="event-form">
-                                <h2>Add New Event</h2>
-                                {Object.keys(newEvent).map((key) => (
-                                    <div key={key} className="form-group">
-                                        <label className="form-label">{capitalizeFieldName(key)}</label>
-                                        {key === "medicalFocus" ? (
-                                            <select
-                                                className="form-input"
-                                                value={newEvent.medicalFocus}
-                                                onChange={(e) =>
-                                                    setNewEvent({ ...newEvent, medicalFocus: e.target.value })
-                                                }
-                                            >
-                                                <option value="">Select Medical Focus</option>
-                                                {medicalFocusOptions.map((name) => (
-                                                    <option key={name} value={name}>
-                                                        {name}
-                                                    </option>
-                                                ))}
-                                            </select>
-                                        ) : key === "coordinator" ? (
-                                            <select
-                                                className="form-input"
-                                                value={newEvent.coordinator}
-                                                onChange={(e) =>
-                                                    setNewEvent({ ...newEvent, coordinator: e.target.value })
-                                                }
-                                            >
-                                                <option value="">Select Coordinator</option>
-                                                {userOptions.map((name) => (
-                                                    <option key={name} value={name}>
-                                                        {name}
-                                                    </option>
-                                                ))}
-                                            </select>
-                                        ) : key === "fundraiser" ? (
-                                            <select
-                                                className="form-input"
-                                                value={newEvent.fundraiser}
-                                                onChange={(e) =>
-                                                    setNewEvent({ ...newEvent, fundraiser: e.target.value })
-                                                }
-                                            >
-                                                <option value="">Select Fundraiser</option>
-                                                {userOptions.map((name) => (
-                                                    <option key={name} value={name}>
-                                                        {name}
-                                                    </option>
-                                                ))}
-                                            </select>
-                                        ) : (
-                                            <input
-                                                className="form-input"
-                                                type={key === "date" ? "date" : key === "capacity" ? "number" : "text"}
-                                                placeholder={capitalizeFieldName(key)}
-                                                value={newEvent[key]}
-                                                min={key === "capacity" ? "1" : undefined}
-                                                onChange={(e) =>
-                                                    setNewEvent({ ...newEvent, [key]: e.target.value })
-                                                }
-                                            />
-                                        )}
-                                        {errors[key] && <p className="error-text">{errors[key]}</p>}
+                            <div className="modal-overlay">
+                                <div className="modal-content">
+                                    <h2>Add New Event</h2>
+                                    {Object.keys(newEvent).map((key) => (
+                                        <div key={key} className="form-group">
+                                            <label className="form-label">
+                                                {capitalizeFieldName(key)}
+                                                <span className="required-star">*</span>
+                                                </label>
+                                            {key === "medicalFocus" ? (
+                                                <select
+                                                    className="form-input"
+                                                    value={newEvent.medicalFocus}
+                                                    onChange={(e) =>
+                                                        setNewEvent({ ...newEvent, medicalFocus: e.target.value })
+                                                    }
+                                                >
+                                                    <option value="">Select Medical Focus</option>
+                                                    {medicalFocusOptions.map((name) => (
+                                                        <option key={name} value={name}>
+                                                            {name}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            ) : key === "coordinator" ? (
+                                                <select
+                                                    className="form-input"
+                                                    value={newEvent.coordinator}
+                                                    onChange={(e) =>
+                                                        setNewEvent({ ...newEvent, coordinator: e.target.value })
+                                                    }
+                                                >
+                                                    <option value="">Select Coordinator</option>
+                                                    {userOptions.map((name) => (
+                                                        <option key={name} value={name}>
+                                                            {name}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            ) : key === "fundraiser" ? (
+                                                <select
+                                                    className="form-input"
+                                                    value={newEvent.fundraiser}
+                                                    onChange={(e) =>
+                                                        setNewEvent({ ...newEvent, fundraiser: e.target.value })
+                                                    }
+                                                >
+                                                    <option value="">Select Fundraiser</option>
+                                                    {userOptions.map((name) => (
+                                                        <option key={name} value={name}>
+                                                            {name}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            ) : (
+                                                <input
+                                                    className="form-input"
+                                                    type={key === "date" ? "date" : key === "capacity" ? "number" : "text"}
+                                                    placeholder={capitalizeFieldName(key)}
+                                                    value={newEvent[key]}
+                                                    min={key === "capacity" ? "1" : undefined}
+                                                    onChange={(e) =>
+                                                        setNewEvent({ ...newEvent, [key]: e.target.value })
+                                                    }
+                                                />
+                                            )}
+                                            {errors[key] && <p className="error-text">{errors[key]}</p>}
+                                        </div>
+                                    ))}
+                                    <div className="form-buttons">
+                                        <button onClick={handleCancelEvent}>Cancel</button>
+                                        <button onClick={handleAddEvent}>Submit</button>
                                     </div>
-                                ))}
-                                <div className="form-buttons">
-                                    <button onClick={handleCancelEvent}>Cancel</button>
-                                    <button onClick={handleAddEvent}>Submit</button>
                                 </div>
                             </div>
                         )}
