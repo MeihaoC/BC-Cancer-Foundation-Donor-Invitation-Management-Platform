@@ -77,12 +77,16 @@
   width: 100%;
   border-collapse: collapse;
   border: 1px solid #ddd;
+  table-layout: fixed; /* Use fixed table layout */
 }
   
 .event-table th, .event-table td {
   border: 1px solid #ddd;
   padding: 8px;
   text-align: left;
+  overflow: hidden;           /* Hide overflow */
+  text-overflow: ellipsis;    /* Add ellipsis for overflowing text */
+  white-space: nowrap;        /* Prevent wrapping */
 }
   
 .event-table th {

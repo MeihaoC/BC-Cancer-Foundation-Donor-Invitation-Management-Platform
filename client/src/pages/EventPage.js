@@ -169,7 +169,7 @@ export default function EventPage() {
         try {
             console.log("Searching for events with name:", searchTerm);
             // Update search field in the api
-            const response = await axios.get(`http://localhost:5001/api/events/search?field=${searchField}&q=${searchTerm}`);
+            const response = await axios.get(`http://localhost:5001/api/events/search?field=${searchField}&query=${searchTerm}`);
             console.log("Events fetched:", response.data);
             setEventData(response.data);
         } catch (err) {
@@ -238,6 +238,16 @@ export default function EventPage() {
                         </div>
 
                         <table className="event-table">
+                        <colgroup>
+                            <col style={{ width: "24%" }} />
+                            <col style={{ width: "10%" }} />
+                            <col style={{ width: "11%" }} />
+                            <col style={{ width: "13%" }} />
+                            <col style={{ width: "8%" }} />
+                            <col style={{ width: "11%" }} />
+                            <col style={{ width: "11%" }} />
+                            <col style={{ width: "10%" }} />
+                        </colgroup>
                             <thead>
                                 <tr>
                                     <th>Event Name</th>
