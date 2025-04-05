@@ -173,6 +173,7 @@
     width: 100%;
     border-collapse: collapse;
     border: 1px solid var(--table-border);
+    table-layout: fixed; /* Forces fixed column widths */
   }
   
   .donor-table th,
@@ -180,6 +181,9 @@
     border: 1px solid var(--table-border);
     padding: 8px;
     text-align: left;
+    overflow: hidden;         /* Hide overflowing text */
+  text-overflow: ellipsis;  /* Show an ellipsis (...) for overflow */
+  white-space: nowrap;      /* Prevents wrapping */
   }
   
   .donor-table th {
@@ -248,7 +252,6 @@
     font-size: 16px;
   }
   
-
   /* Responsive adjustments */
   @media (max-width: 768px) {
     .event-details-container {
@@ -278,7 +281,7 @@
 .gen-top-tabs button {
   flex: 1;
   padding: 12px;
-  background-color: #c0c1c4; 
+  background-color: darkgray; 
   border: none;
   cursor: pointer;
   text-align: center;
@@ -306,7 +309,7 @@
 
 .sub-tabs button {
   padding: 6px 12px;
-  background-color: #c0c1c4;
+  background-color: darkgray;
   border: none;
   border-radius: 4px;
   cursor: pointer;
@@ -367,4 +370,36 @@
 
 .bottom-buttons button:hover {
   background-color: var(--primary-hover);
+}
+
+/* Cancel / Close button styling */
+.cancel-button {
+  background-color: darkgray !important;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  min-width: var(--min-btn-width);
+  text-align: center;
+}
+
+.cancel-button:hover {
+  background-color: gray !important;
+}
+
+/* Remove button styling */
+.remove-button {
+  background-color: var(--danger-color) !important; 
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  min-width: var(--min-btn-width);
+  text-align: center;
+}
+
+.remove-button:hover {
+  background-color: var(--danger-hover) !important;
 }

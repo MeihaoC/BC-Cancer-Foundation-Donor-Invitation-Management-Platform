@@ -583,7 +583,7 @@ function SingleEventPage() {
 
                                     {/* Bottom Action Buttons */}
                                     <div className="bottom-buttons">
-                                    <button onClick={handleCancelGenerate}>Cancel</button>
+                                    <button className="cancel-button" onClick={handleCancelGenerate}>Cancel</button>
                                     <button onClick={handleSaveGenerate}>Save</button>
                                     </div>
                                 </div>
@@ -591,7 +591,7 @@ function SingleEventPage() {
 
                             {/* C) Finalized donor list view (non-editing) */}
                             {isFormVisible && !isEditingFinalList &&  (
-                                <div className="donor-form">
+                                <div className="donor-edit-form">
                                     <div className="donor-header">
                                         <h2>Donor List</h2>
                                         <div className="donor-buttons">                            
@@ -606,7 +606,9 @@ function SingleEventPage() {
                             {/* D) Editing the finalized donor list */}
                             {isFormVisible && isEditingFinalList && (
                                 <div className="donor-edit-form">
-                                    <h2>Edit Donor List</h2>
+                                    <div className="donor-header">
+                                        <h2>Edit Donor List</h2>
+                                    </div>
                                     <DonorTable donors={tempDonorList} showActions={true} handleRemoveDonor={handleRemoveDonor} />
                                     <div className="donor-edit-buttons">
                                     {!isAddingDonors && (
@@ -615,7 +617,7 @@ function SingleEventPage() {
                                         </div>
                                     )}
                                     <div className="donor-edit-actions">
-                                        <button onClick={handleCancelEdit}>Cancel</button>
+                                        <button className="cancel-button" onClick={handleCancelEdit}>Cancel</button>
                                         <button onClick={handleSaveEdit}>Save</button>
                                     </div>
                                     </div>
@@ -705,7 +707,7 @@ function SingleEventPage() {
                                         </div>
                                         )}
                                         <div className="donor-add-form-actions">
-                                        <button onClick={() => setIsAddingDonors(false)}>Close</button>
+                                        <button className="cancel-button" onClick={() => setIsAddingDonors(false)}>Close</button>
                                         </div>
                                     </div>
                                     )}
