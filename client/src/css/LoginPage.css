@@ -52,6 +52,7 @@
     font-size: 16px;
     margin-top: 4px;
     color: #333;
+    box-sizing: border-box;
   }
   
   .input-group input:focus {
@@ -68,6 +69,7 @@
     cursor: pointer;
     width: 100%;
     font-size: 16px;
+    box-sizing: border-box;
   }
   
   button[type="submit"]:hover {

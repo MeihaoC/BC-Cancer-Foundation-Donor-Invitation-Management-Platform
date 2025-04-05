@@ -4,6 +4,8 @@
   background-color: #f5f5f5;
   min-height: 100vh;
   color: #000;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 14px;
 }
 
 .main-content {
@@ -25,7 +27,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 }
   
 .event-title {
@@ -76,7 +78,7 @@
 .event-table {
   width: 100%;
   border-collapse: collapse;
-  border: 1px solid #ddd;
+  border: 1px solid var(--table-border);
   table-layout: fixed; /* Use fixed table layout */
 }
   

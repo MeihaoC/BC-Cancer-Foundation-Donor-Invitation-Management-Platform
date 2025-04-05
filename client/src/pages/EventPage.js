@@ -216,6 +216,9 @@ export default function EventPage() {
                                     <option value="name">Event Name</option>
                                     <option value="city">City</option>
                                     <option value="medical_focus">Medical Focus</option>
+                                    <option value="coordinator">Coordinator</option>
+                                    <option value="fundraiser">Fundraiser</option>
+                                    <option value="status">Status</option>
                                 </select>
                                 <input
                                     className="search-input"
@@ -226,7 +229,7 @@ export default function EventPage() {
                                 />
                             </div>
                             <button className="add-button" onClick={() => setIsFormVisible(true)}>
-                                    + ADD event
+                                    + Add event
                             </button>
                         </div>
 
@@ -264,13 +267,13 @@ export default function EventPage() {
                                                 {event.name}
                                             </Link>
                                         </td>
-                                        <td>{new Date(event.date).toLocaleDateString()}</td>
+                                        <td>{new Date(event.date).toISOString().split('T')[0]}</td>
                                         <td>{event.city}</td>
-                                        <td className={focusClass}>{event.medical_focus}</td>
+                                        <td><span className={focusClass}>{event.medical_focus}</span></td>
                                         <td>{event.capacity}</td>
                                         <td>{event.coordinator}</td>
                                         <td>{event.fundraiser}</td>
-                                        <td className={statusClass}>{event.status}</td>
+                                        <td><span className={statusClass}>{event.status}</span></td>
                                     </tr>
                                     );
                                     })}
