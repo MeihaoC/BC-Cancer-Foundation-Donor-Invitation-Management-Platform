@@ -226,7 +226,7 @@ export default function EventPage() {
                                 />
                             </div>
                             <button className="add-button" onClick={() => setIsFormVisible(true)}>
-                                    + ADD event
+                                    + Add event
                             </button>
                         </div>
 
