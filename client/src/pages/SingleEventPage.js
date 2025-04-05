@@ -9,6 +9,7 @@ import { MdDelete, MdEdit } from "react-icons/md";
 import { FaUser, FaHospital, FaUsers, FaMapMarkedAlt } from "react-icons/fa";
 import Topbar from "../components/Topbar";
 import Sidebar from "../components/Sidebar";
+import EventFormPopup from "../components/EventFormPopup";
 
 // API: '/events/:eventId'
 function SingleEventPage() {
@@ -20,11 +21,28 @@ function SingleEventPage() {
     const [event, setEvent] = useState([]);
     const [donors, setDonors] = useState([]);
 
+    const [newEvent, setNewEvent] = useState(
+        {
+            name: "",
+            date: "",
+            city: "",
+            location: "",
+            medical_focus: "",
+            capacity: "",
+            coordinator: "",
+            fundraiser: "",
+            detailed_info: ""
+        }
+    ); // new event data for editing
+    const [errors, setErrors] = useState({});
+    const [userOptions, setUserOptions] = useState([]);
+
     // Flags to control the donor list UI states
     const [isFormVisible, setIsFormVisible] = useState(false); // indicates a saved donor list exists
     const [isGenerating, setIsGenerating] = useState(false);   // generating a new donor list from scratch
     const [isEditingFinalList, setIsEditingFinalList] = useState(false); // editing an existing donor list
     const [isAddingDonors, setIsAddingDonors] = useState(false); // adding extra donors during editing
+    const [isPopupVisible, setIsPopupVisible] = useState(false); // popup for editing event details
 
     // Temporary donor list used during generation or editing
     const [tempDonorList, setTempDonorList] = useState([]);
@@ -62,6 +80,7 @@ function SingleEventPage() {
                 const eventResponse = await axios.get('http://localhost:5001/api/events/' + eventId + '/details');
                 console.log(eventResponse.data);
                 setEvent(eventResponse.data);
+                setNewEvent(event);
 
                 // fetch the donors data
                 const donorsResponse = await axios.get('http://localhost:5001/api/events/' + eventId + '/donors');
@@ -94,6 +113,19 @@ function SingleEventPage() {
         }
     }, [event]);
 
+    // useEffect: Fetch events and dropdown options on component mount
+    useEffect(() => {
+        axios
+            .get("http://localhost:5001/api/events/medical-focuses")
+            .then((response) => setMedicalFocusOptions(response.data))
+            .catch((err) => console.error("Error fetching medical focuses:", err));
+
+        axios
+            .get("http://localhost:5001/api/events/users")
+            .then((response) => setUserOptions(response.data))
+            .catch((err) => console.error("Error fetching user names:", err));
+    }, []);
+
     // delete the event
     const handleDelete = async () => {
         try {
@@ -104,6 +136,63 @@ function SingleEventPage() {
             // handle errors
             console.error("Failed to delete event:", error);
             alert(error.message);
+        }
+    };
+
+    // Cancel handler: reset form and hide it
+    const handleCancelEditEvent = () => {
+        setIsPopupVisible(false);
+        setNewEvent(event);
+        setErrors({});
+    }
+    // edit the event details
+    // Validate all fields, and check capacity is a positive integer
+    const validateForm = () => {
+        let newErrors = {};
+        Object.keys(newEvent).forEach((key) => {
+            if (key !== "capacity" && !newEvent[key]) {
+                newErrors[key] = "This field is required";
+            }
+        });
+        if (newEvent.capacity === "" || newEvent.capacity === undefined || newEvent.capacity === null) {
+            newErrors.capacity = "This field is required";
+        } else if (Number(newEvent.capacity) <= 0) {
+            newErrors.capacity = "Capacity must be a positive integer";
+        }
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
+    // Submit handler: validate + append event
+    const handleEditEvent = async () => {
+        if (!validateForm()) return;
+
+        // Map frontend fields to backend keys.
+        const payload = {
+            name: newEvent.name,
+            date: newEvent.date,
+            location: newEvent.location,
+            city: newEvent.city,
+            medical_focus: newEvent.medical_focus,
+            capacity: parseInt(newEvent.capacity, 10),
+            coordinator: newEvent.coordinator,
+            fundraiser: newEvent.fundraiser,
+            details: newEvent.detailed_info
+        };
+
+        try {
+            console.log(payload);
+            const response = await axios.put("http://localhost:5001/api/events/" + eventId, payload);
+            console.log("Event added:", response.data);
+            alert("Event updated successfully!");
+            // Reset the form and hide it.
+            setIsPopupVisible(false);
+            setNewEvent(response.data);
+            setErrors({});
+            window.location.reload(); // Reload the page to reflect changes
+        } catch (err) {
+            console.error(err);
+            alert(err.response?.data?.error || err.response?.data?.message || err.message);
         }
     };
 
@@ -383,7 +472,7 @@ function SingleEventPage() {
                                     <button className="delete-button" onClick={handleDelete}>
                                         <MdDelete className="icon"/>  Delete
                                     </button>
-                                    <button className="edit-button">
+                                    <button className="edit-button" onClick={() => {setIsPopupVisible(true);}}>
                                         <MdEdit className="icon"/>  Edit
                                     </button>
                                 </div>
@@ -715,6 +804,21 @@ function SingleEventPage() {
                             )}
                         </div>
                     </div>
+
+                    {/* TODO: Edit event details */}
+                    {isPopupVisible && (
+                        <EventFormPopup
+                            isVisible={isPopupVisible}
+                            mode="edit"
+                            eventData={newEvent}
+                            setEventData={setNewEvent}
+                            medicalFocusOptions={medicalFocusOptions}
+                            userOptions={userOptions}
+                            errors={errors}
+                            onCancel={handleCancelEditEvent}
+                            onSubmit={handleEditEvent}
+                        />
+                    )}
                 </div>
             </div>
         </div>
