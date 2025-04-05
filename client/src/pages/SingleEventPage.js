@@ -80,7 +80,7 @@ function SingleEventPage() {
                 const eventResponse = await axios.get('http://localhost:5001/api/events/' + eventId + '/details');
                 console.log(eventResponse.data);
                 setEvent(eventResponse.data);
-                setNewEvent(event);
+                setNewEvent(eventResponse.data);
 
                 // fetch the donors data
                 const donorsResponse = await axios.get('http://localhost:5001/api/events/' + eventId + '/donors');
@@ -158,6 +158,8 @@ function SingleEventPage() {
             newErrors.capacity = "This field is required";
         } else if (Number(newEvent.capacity) <= 0) {
             newErrors.capacity = "Capacity must be a positive integer";
+        } else if (Number(newEvent.capacity) < donors.length) {
+            newErrors.capacity = "Capacity must be greater than or equal to the number of donors";
         }
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
