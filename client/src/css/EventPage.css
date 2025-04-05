@@ -230,30 +230,34 @@
 .tag-highly-engaged {
   background-color: #10b981; /* green */
   color: #fff;
-  padding: 2px 6px;
+  padding: 4px 8px;
   border-radius: 4px;
+  display: inline-block;
 }
 
 .tag-moderately-engaged {
   background-color: #facc15; /* yellow */
   color: #000;
-  padding: 2px 6px;
+  padding: 4px 8px;
   border-radius: 4px;
+  display: inline-block;
 }
 
 .tag-rarely-engaged {
   background-color: #ef4444; /* red */
   color: #fff;
-  padding: 2px 6px;
+  padding: 4px 8px;
   border-radius: 4px;
+  display: inline-block;
 }
 
 /* Default engagement tag */
 .tag-default-engagement {
   background-color: #ccc;
   color: #333;
-  padding: 2px 6px;
+  padding: 4px 8px;
   border-radius: 4px;
+  display: inline-block;
 }
   
 /* Wrapper to align pagination to the right */
