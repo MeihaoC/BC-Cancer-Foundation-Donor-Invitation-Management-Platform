@@ -840,18 +840,11 @@ function SingleEventPage() {
                                 <div className="donor-edit-form">
                                     <div className="donor-header">
                                         <h2>Edit Donor List</h2>
-                                    </div>
-                                    <DonorTable donors={tempDonorList} showActions={true} handleRemoveDonor={handleRemoveDonor} />
-                                    <div className="donor-edit-buttons">
-                                    {!isAddingDonors && (
-                                        <div className="add-donors-button">
-                                        <button onClick={handleShowAddDonors}>Add Donors</button>
-                                        </div>
+                                        {!isAddingDonors && (
+                                            <div className="add-donors-button">
+                                            <button onClick={handleShowAddDonors}>+ Add Donors</button>
+                                            </div>
                                     )}
-                                    <div className="donor-edit-actions">
-                                        <button className="cancel-button" onClick={handleCancelEdit}>Cancel</button>
-                                        <button onClick={handleSaveEdit}>Save</button>
-                                    </div>
                                     </div>
 
                                     {isAddingDonors && (
@@ -970,11 +963,35 @@ function SingleEventPage() {
                                             )}
                                         </div>
                                         )}
+                                        {/* Donor Table shown inside the tab when adding donors */}
+                                        <div className="temp-donor-list">
+                                        <h3>Temporary Donor List</h3>
+                                        {tempDonorList.length === 0 ? (
+                                            <p>No donors added yet</p>
+                                        ) : (
+                                            <DonorTable
+                                            donors={tempDonorList}
+                                            showActions={true}
+                                            handleRemoveDonor={handleRemoveDonor}
+                                            />
+                                        )}
+                                        </div>
                                         <div className="donor-add-form-actions">
                                         <button className="cancel-button" onClick={handleCloseAddDonors}>Close</button>
                                         </div>
                                     </div>
                                     )}
+                                    {!isAddingDonors && (
+                                        <DonorTable
+                                            donors={tempDonorList}
+                                            showActions={true}
+                                            handleRemoveDonor={handleRemoveDonor}
+                                        />
+                                    )}
+                                    <div className="donor-edit-actions">
+                                        <button className="cancel-button" onClick={handleCancelEdit}>Cancel</button>
+                                        <button onClick={handleSaveEdit}>Save</button>
+                                    </div>
                                 </div>
                             )}
                         </div>
