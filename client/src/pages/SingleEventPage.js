@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import "../css/SingleEventPage.css";
 import { useParams } from "react-router-dom";
@@ -70,6 +70,11 @@ function SingleEventPage() {
     const [wasAdditionalDonors, setWasAdditionalDonors] = useState([]); // previously selected additional matched donors
     const [matchedDonors, setMatchedDonors] = useState([]); // matched donors from search
     const [wasMatchedDonors, setWasMatchedDonors] = useState([]); // previously selected matched donors
+
+    const [suggestions, setSuggestions] = useState([]); // suggestions for donor name search
+    const [showSuggestions, setShowSuggestions] = useState(false); // show suggestions dropdown
+    const [isLoading, setIsLoading] = useState(false);
+    const dropdownRef = useRef(null); // Create a ref for the dropdown menu
 
     // fetch event and donors data
     useEffect(() => {
@@ -397,6 +402,7 @@ function SingleEventPage() {
             setWasBestMatchedDonors([]);
             setWasAdditionalDonors([]);
             setWasMatchedDonors([]);
+            setSuggestions([]);
         } catch (error) {
             console.error("Failed to cancel donor edits:", error);
             alert("Failed to cancel donor edits");
@@ -486,7 +492,74 @@ function SingleEventPage() {
         setWasBestMatchedDonors([]);
         setWasAdditionalDonors([]);
         setWasMatchedDonors([]);
+        setSuggestions([]);
     };
+
+    // Debounce function to limit API calls while typing
+    const debounce = (func, delay) => {
+        let timeoutId;
+        return (...args) => {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => func(...args), delay);
+        };
+    };
+  
+    // Create a debounced search function
+    const debouncedSearch = debounce(async (value) => {
+        if (value.length < 2) return;
+        
+        setIsLoading(true);
+        try {
+        const response = await axios.get(`http://localhost:5001/api/events/${eventId}/donors/search`, {
+            params: { name: value }
+        });
+        setSuggestions(response.data);
+        setShowSuggestions(true);
+        } catch (error) {
+        console.error("Suggestions fetch failed:", error);
+        setSuggestions([]);
+        } finally {
+        setIsLoading(false);
+        }
+    }, 300); // 300ms delay
+    
+    // Handle input changes
+    const handleSearchInputChange = (e) => {
+        const value = e.target.value;
+        setSearchName(value);
+        
+        if (value.length >= 2) {
+        debouncedSearch(value);
+        } else {
+        setSuggestions([]);
+        setShowSuggestions(false);
+        }
+    };
+    
+    // Function to handle selection of a suggestion
+    const handleSelectSuggestion = (donor) => {
+        setSearchName(donor.name);
+        setShowSuggestions(false);
+        setMatchedDonors([donor]); // Immediately show this donor in results
+    };
+
+    // Handle clicks outside the dropdown
+    useEffect(() => {
+        function handleClickOutside(event) {
+        // If click is outside the dropdown, hide it
+        if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+            setShowSuggestions(false);
+        }
+        }
+        
+        // Add event listener when component mounts
+        document.addEventListener("mousedown", handleClickOutside);
+        
+        // Clean up event listener when component unmounts
+        return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
 
     // Rendering
     if (!event) {
@@ -674,23 +747,49 @@ function SingleEventPage() {
                                     {topTab === "search" && (
                                     <div className="search-content">
                                         <div className="search-name-bar">
-                                        <input
-                                            type="text"
-                                            value={searchName}
-                                            onChange={(e) => setSearchName(e.target.value)}
-                                            placeholder="Search donor name"
-                                        />
-                                        <button onClick={handleSearchByName}>Search</button>
-                                        </div>
-                                        {matchedDonors.length > 0 ? (
-                                            <div>
-                                                <h3>Result:</h3>
-                                                <DonorTable
-                                                    donors={matchedDonors}
-                                                    showActions={true}
-                                                    handleAddDonor={handleAddDonor}
+                                            <div className="autocomplete-container">
+                                                <input
+                                                type="text"
+                                                value={searchName}
+                                                onChange={handleSearchInputChange}
+                                                placeholder="Search donor name"
                                                 />
+
+                                                {isLoading && (
+                                                    <div className="loading-indicator">
+                                                    <div className="spinner"></div>
+                                                    </div>
+                                                )}
+
+                                                {showSuggestions && suggestions.length > 0 && (
+                                                <div 
+                                                    className="suggestions-dropdown"
+                                                    ref={dropdownRef} // Add the ref here
+                                                >
+                                                    {suggestions.map((suggestion) => (
+                                                    <div 
+                                                        key={suggestion.id} 
+                                                        className="suggestion-item"
+                                                        onClick={() => handleSelectSuggestion(suggestion)}
+                                                    >
+                                                        {suggestion.name}
+                                                    </div>
+                                                    ))}
+                                                </div>
+                                                )}
                                             </div>
+                                            <button onClick={handleSearchByName}>Search</button>
+                                        </div>
+                                    
+                                        {matchedDonors.length > 0 ? (
+                                        <div>
+                                            <h3>Result:</h3>
+                                            <DonorTable
+                                            donors={matchedDonors}
+                                            showActions={true}
+                                            handleAddDonor={handleAddDonor}
+                                            />
+                                        </div>
                                         ) : (
                                         <p>No donors found.</p>
                                         )}
@@ -819,29 +918,56 @@ function SingleEventPage() {
 
                                         {/* Search Donors Content */}
                                         {topTab === "search" && (
-                                        <div className="search-content">
-                                            <div className="search-name-bar">
-                                            <input
+                                    <div className="search-content">
+                                        <div className="search-name-bar">
+                                            <div className="autocomplete-container">
+                                                <input
                                                 type="text"
                                                 value={searchName}
-                                                onChange={(e) => setSearchName(e.target.value)}
+                                                onChange={handleSearchInputChange}
                                                 placeholder="Search donor name"
-                                            />
-                                            <button onClick={handleSearchByName}>Search</button>
-                                            </div>
-                                            {matchedDonors.length > 0 ? (
-                                            <div>
-                                                <h3>Result:</h3>
-                                                <DonorTable
-                                                    donors={matchedDonors}
-                                                    showActions={true}
-                                                    handleAddDonor={handleAddDonor}
                                                 />
-                                            </div>) : (
-                                            <p>No donors found.</p>
-                                            )}
+
+                                                {isLoading && (
+                                                    <div className="loading-indicator">
+                                                    <div className="spinner"></div>
+                                                    </div>
+                                                )}
+
+                                                {showSuggestions && suggestions.length > 0 && (
+                                                <div 
+                                                    className="suggestions-dropdown"
+                                                    ref={dropdownRef} // Add the ref here
+                                                >
+                                                    {suggestions.map((suggestion) => (
+                                                    <div 
+                                                        key={suggestion.id} 
+                                                        className="suggestion-item"
+                                                        onClick={() => handleSelectSuggestion(suggestion)}
+                                                    >
+                                                        {suggestion.name}
+                                                    </div>
+                                                    ))}
+                                                </div>
+                                                )}
+                                            </div>
+                                            <button onClick={handleSearchByName}>Search</button>
                                         </div>
+                                    
+                                        {matchedDonors.length > 0 ? (
+                                        <div>
+                                            <h3>Result:</h3>
+                                            <DonorTable
+                                            donors={matchedDonors}
+                                            showActions={true}
+                                            handleAddDonor={handleAddDonor}
+                                            />
+                                        </div>
+                                        ) : (
+                                        <p>No donors found.</p>
                                         )}
+                                    </div>
+                                    )}
                                         <div className="donor-add-form-actions">
                                         <button className="cancel-button" onClick={handleCloseAddDonors}>Close</button>
                                         </div>
