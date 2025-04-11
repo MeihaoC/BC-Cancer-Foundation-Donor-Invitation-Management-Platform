@@ -8,6 +8,12 @@ function getStatus(donorCount, capacity) {
 
 const tempDonorEdits = new Map();
 
+function formatDateToReadable(dateStr) {
+  return new Date(dateStr).toLocaleDateString('en-US', {
+    year: 'numeric', month: 'long', day: 'numeric'
+  });
+}
+
 exports.login = async (req, res) => {
   const { email, password } = req.body;
   try {
@@ -45,7 +51,7 @@ exports.getEvents = async (req, res) => {
 
     const enriched = events.map(e => ({
       ...e,
-      date: new Date(e.date).toISOString().split('T')[0],
+      date: formatDateToReadable(e.date),
       status: getStatus(countMap[e.id] || 0, e.capacity)
     }));
 
@@ -85,7 +91,7 @@ exports.searchEvents = async (req, res) => {
     const enriched = events.map(e => ({
       id: e.id,
       name: e.name,
-      date: e.date,
+      date: formatDateToReadable(e.date),
       city: e.city,
       medical_focus: e.medical_focus,
       capacity: e.capacity,
@@ -256,6 +262,7 @@ exports.suggestDonors = async (req, res) => {
 };
 
 
+
 exports.addDonorTemp = (req, res) => {
   const { eventId } = req.params;
   const donorIds = req.body.donorIds; // expecting an array like [1, 2, 3]
@@ -419,7 +426,7 @@ exports.getEventDetails = async (req, res) => {
       return res.status(404).json({ error: 'Event not found' });
     }
 
-    event.date = event.date.toISOString().split('T')[0];
+    event.date = formatDateToReadable(event.date);
 
     res.json(event);
   } catch (err) {
