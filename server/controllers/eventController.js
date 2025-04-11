@@ -14,6 +14,10 @@ function formatDateToReadable(dateStr) {
   });
 }
 
+function formatCurrency(amount) {
+  return `$${Number(amount).toLocaleString('en-US')}`;
+}
+
 exports.login = async (req, res) => {
   const { email, password } = req.body;
   try {
@@ -196,7 +200,8 @@ exports.suggestDonors = async (req, res) => {
 
     const donorsWithArrayFocus = donors.map(d => ({
       ...d,
-      medical_focus: d.medical_focus ? d.medical_focus.split(',') : []
+      medical_focus: d.medical_focus ? d.medical_focus.split(',') : [],
+      total_donation: formatCurrency(d.total_donation)
     }));
 
     const [saved] = await db.execute('SELECT donor_id FROM Event_Donor WHERE event_id = ?', [eventId]);
@@ -367,7 +372,11 @@ exports.searchDonorByName = async (req, res) => {
     `, [`%${name}%`, `%${name}%`, `%${name}%`]);
 
     const formatted = results
-      .map(d => ({ ...d, medical_focus: d.medical_focus ? d.medical_focus.split(',') : [] }))
+      .map(d => ({
+        ...d,
+        medical_focus: d.medical_focus ? d.medical_focus.split(',') : [],
+        total_donation: formatCurrency(d.total_donation)
+      }))
       .filter(d => (!savedIds.has(d.id) || edits.removed.has(d.id)) && !edits.added.has(d.id));
 
     res.json(formatted);
@@ -394,7 +403,7 @@ exports.exportDonorsCSV = async (req, res) => {
 
     const csv = [
       ['Donor Name', 'Total Donations', 'City', 'Medical Focus', 'Engagement', 'Email Address', 'PMM'],
-      ...donors.map(d => [d.name, d.total_donation, d.city, d.medical_focus, d.engagement, d.email, d.pmm])
+      ...donors.map(d => [d.name, formatCurrency(d.total_donation), d.city, d.medical_focus, d.engagement, d.email, d.pmm])
     ].map(row => row.join(',')).join('\n');
 
     res.setHeader('Content-Type', 'text/csv');
@@ -457,8 +466,9 @@ exports.getDonorListForEvent = async (req, res) => {
 
     const formatted = donors.map(d => ({
       ...d,
-      medical_focus: d.medical_focus ? d.medical_focus.split(',') : []
-    }));
+      medical_focus: d.medical_focus ? d.medical_focus.split(',') : [],
+      total_donation: formatCurrency(d.total_donation)
+    }));    
 
     res.json(formatted);
   } catch (err) {
