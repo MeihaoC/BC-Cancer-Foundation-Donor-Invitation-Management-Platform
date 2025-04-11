@@ -29,7 +29,7 @@ const EventFormPopup = ({
                 <div key={key} className="form-group">
                   <label className="form-label">
                     {capitalizeFieldName(key)}
-                    <span className="required-star">*</span>
+                    <span className="required-star">*</span><span className="required-text">(required)</span>
                   </label>
       
                   {key === "medicalFocus" ? (

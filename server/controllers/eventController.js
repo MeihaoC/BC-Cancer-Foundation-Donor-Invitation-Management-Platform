@@ -255,17 +255,24 @@ exports.suggestDonors = async (req, res) => {
 
 exports.addDonorTemp = (req, res) => {
   const { eventId } = req.params;
-  const donorId = Number(req.body.donorId);
+  const donorIds = req.body.donorIds; // expecting an array like [1, 2, 3]
+
+  if (!Array.isArray(donorIds)) {
+    return res.status(400).json({ error: 'Invalid donorIds format' });
+  }
 
   if (!tempDonorEdits.has(eventId)) {
     tempDonorEdits.set(eventId, { added: new Set(), removed: new Set() });
   }
 
   const edits = tempDonorEdits.get(eventId);
-  edits.removed.delete(donorId);
-  edits.added.add(donorId);
 
-  res.json({ message: 'Donor temporarily added' });
+  donorIds.forEach(donorId => {
+    edits.removed.delete(donorId);
+    edits.added.add(donorId);
+  });
+
+  res.json({ message: 'Donors temporarily added' });
 };
 
 
