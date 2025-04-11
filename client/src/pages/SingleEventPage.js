@@ -729,14 +729,14 @@ function SingleEventPage() {
 
                                             {/* Donor Tables */}
                                             {autoSubTab === "best" && (
-                                            <DonorTable
+                                            <EditDonorTable
                                                 donors={bestMatchedDonors}
                                                 showActions={true}
                                                 handleAddDonor={handleAddDonor}
                                             />
                                             )}
                                             {autoSubTab === "additional" && (
-                                            <DonorTable
+                                            <EditDonorTable
                                                 donors={additionalDonors}
                                                 showActions={true}
                                                 handleAddDonor={handleAddDonor}
@@ -786,7 +786,7 @@ function SingleEventPage() {
                                             {matchedDonors.length > 0 ? (
                                             <div>
                                                 <h3>Result:</h3>
-                                                <DonorTable
+                                                <EditDonorTable
                                                 donors={matchedDonors}
                                                 showActions={true}
                                                 handleAddDonor={handleAddDonor}
