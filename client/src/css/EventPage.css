@@ -339,6 +339,13 @@
   margin-bottom: 12px;
 }
 
+.required-text {
+  color: var(--text-light);
+  font-size: 12px;
+  margin-left: 4px;
+  font-style: italic;
+}
+
 .required-star {
   color: red;
   margin-left: 4px;
