@@ -241,11 +241,11 @@ export default function EventPage() {
 
                         <table className="event-table">
                         <colgroup>
-                            <col style={{ width: "24%" }} />
+                            <col style={{ width: "20%" }} />
+                            <col style={{ width: "14%" }} />
                             <col style={{ width: "10%" }} />
-                            <col style={{ width: "11%" }} />
-                            <col style={{ width: "13%" }} />
-                            <col style={{ width: "8%" }} />
+                            <col style={{ width: "15%" }} />
+                            <col style={{ width: "7%" }} />
                             <col style={{ width: "11%" }} />
                             <col style={{ width: "11%" }} />
                             <col style={{ width: "10%" }} />
@@ -273,7 +273,13 @@ export default function EventPage() {
                                                 {event.name}
                                             </Link>
                                         </td>
-                                        <td>{new Date(event.date).toISOString().split('T')[0]}</td>
+                                        <td>
+                                            {new Date(event.date).toLocaleDateString('en-US', {
+                                                month: 'long',
+                                                day: 'numeric',
+                                                year: 'numeric'
+                                            })}
+                                        </td>
                                         <td>{event.city}</td>
                                         <td><span className={focusClass}>{event.medical_focus}</span></td>
                                         <td>{event.capacity}</td>

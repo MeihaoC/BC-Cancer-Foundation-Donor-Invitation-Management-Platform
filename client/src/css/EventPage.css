@@ -86,9 +86,9 @@
   border: 1px solid #ddd;
   padding: 8px;
   text-align: left;
-  overflow: hidden;           /* Hide overflow */
-  text-overflow: ellipsis;    /* Add ellipsis for overflowing text */
-  white-space: nowrap;        /* Prevent wrapping */
+  white-space: normal; 
+  word-wrap: break-word; 
+  overflow-wrap: break-word;
 }
   
 .event-table th {
