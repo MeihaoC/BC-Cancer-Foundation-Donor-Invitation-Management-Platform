@@ -25,11 +25,12 @@ const EventFormPopup = ({
           <div className="modal-overlay">
             <div className="modal-content">
               <h2>{mode === "edit" ? "Edit Event" : "Add New Event"}</h2>
+              <p className="required-text">Fields marked with<span className="required-star"> * </span>are mandatory.</p>
               {Object.keys(eventData).map((key) => (
                 <div key={key} className="form-group">
                   <label className="form-label">
                     {capitalizeFieldName(key)}
-                    <span className="required-star">*</span><span className="required-text">(required)</span>
+                    <span className="required-star">*</span>
                   </label>
       
                   {key === "medicalFocus" ? (

@@ -59,6 +59,7 @@ function SingleEventPage() {
     const [filterCity, setFilterCity] = useState("");
     const [filterMedicalFocus, setFilterMedicalFocus] = useState("");
     const [filterEngagement, setFilterEngagement] = useState("");
+    const [filterSize, setFilterSize] = useState(0);
     
     // States for filter options
     const [cityOptions, setCityOptions] = useState([]);
@@ -76,6 +77,7 @@ function SingleEventPage() {
     const [showSuggestions, setShowSuggestions] = useState(false); // show suggestions dropdown
     const [isLoading, setIsLoading] = useState(false);
     const dropdownRef = useRef(null); // Create a ref for the dropdown menu
+    const [isSearchingByName, setIsSearchingByName] = useState(false); // Flag to indicate if searching by name
 
     // fetch event and donors data
     useEffect(() => {
@@ -116,6 +118,7 @@ function SingleEventPage() {
             setFilterCity(event.city);
             setFilterMedicalFocus(event.medical_focus);
             setFilterEngagement("Highly Engaged");
+            setFilterSize(event.capacity || 0);
         }
     }, [event]);
 
@@ -271,7 +274,8 @@ function SingleEventPage() {
                 params: {
                     city: filterCity,
                     medical_focus: filterMedicalFocus,
-                    engagement: filterEngagement
+                    engagement: filterEngagement,
+                    listSize: filterSize // parameter for list size
                 }
             });
             const { best, additional } = response.data;
@@ -291,6 +295,7 @@ function SingleEventPage() {
             const response = await axios.get(`http://localhost:5001/api/events/${eventId}/donors/search`, {
                 params: { name: searchName }
             });
+            setIsSearchingByName(true);
             if (response.data.length > 0) {
                 setMatchedDonors(response.data);
                 setWasBestMatchedDonors([]);
@@ -307,18 +312,20 @@ function SingleEventPage() {
     // Apply filters to regenerate donors
     const handleApplyFilters = async () => {
         try {
-            console.log("Filters:", filterCity, filterMedicalFocus, filterEngagement);
+            console.log("Filters:", filterCity, filterMedicalFocus, filterEngagement, filterSize);
             const response = await axios.get(`http://localhost:5001/api/events/${eventId}/suggest-donors`, {
                 params: {
                     city: filterCity,
                     medical_focus: filterMedicalFocus,
                     engagement: filterEngagement,
+                    listSize: filterSize
                 }
             });
             console.log("Filtered donors:", response.data.best, response.data.additional);
             const { best, additional } = response.data;
             setBestMatchedDonors(best);
             setAdditionalDonors(additional);
+            alert("Donors regenerated successfully!");
         } catch (error) {
             console.error("Failed to fetch donor suggestions:", error);
             alert("Failed to fetch donor suggestions");
@@ -394,7 +401,9 @@ function SingleEventPage() {
             setFilterCity(event.city);
             setFilterMedicalFocus(event.medical_focus);
             setFilterEngagement("Highly Engaged");
+            setFilterSize(event.capacity || 0);
             setSearchName("");
+            setIsSearchingByName(false);
             
             // reset all donor lists
             setMatchedDonors([]);
@@ -484,7 +493,9 @@ function SingleEventPage() {
         setFilterCity(event.city);
         setFilterMedicalFocus(event.medical_focus);
         setFilterEngagement("Highly Engaged");
+        setFilterSize(event.capacity || 0);
         setSearchName("");
+        setIsSearchingByName(false);
         
         // reset all donor lists
         setMatchedDonors([]);
@@ -708,6 +719,15 @@ function SingleEventPage() {
                                                     <option value="Moderately Engaged">Moderately Engaged</option>
                                                     <option value="Rarely Engaged">Rarely Engaged</option>
                                                 </select>
+                                                <input
+                                                    value={filterSize}
+                                                    onChange={(e) => setFilterSize(e.target.value)}
+                                                    type="number"
+                                                    min="1"
+                                                    placeholder="List Size"
+                                                />
+                                                <span className="info-icon" 
+                                                title={"The number of donors to be matched in each list"}>ⓘ</span>
                                                 <button onClick={handleApplyFilters}>Regenerate</button>
                                             </div>
 
@@ -793,7 +813,8 @@ function SingleEventPage() {
                                                 />
                                             </div>
                                             ) : (
-                                            <p>No donors found.</p>
+                                                isSearchingByName ? 
+                                                    <p>No donors found.</p> : null
                                             )}
                                         </div>
                                         )}
@@ -828,7 +849,7 @@ function SingleEventPage() {
                                         <h2>Donor List</h2>
                                         <div className="donor-buttons">                            
                                             <button onClick={handleEditDonorList}>Edit</button>
-                                            <button onClick={handleExport}>Export</button>
+                                            <button onClick={handleExport}>Export .csv</button>
                                         </div>
                                     </div>
                                     <DonorTable donors={donors} showActions={false} />
@@ -884,6 +905,13 @@ function SingleEventPage() {
                                                 <option value="Moderately Engaged">Moderately Engaged</option>
                                                 <option value="Rarely Engaged">Rarely Engaged</option>
                                             </select>
+                                            <input
+                                                    value={filterSize}
+                                                    onChange={(e) => setFilterSize(e.target.value)}
+                                                    type="number"
+                                                    min="1"
+                                                    placeholder="List Size"
+                                            />
                                             <button onClick={handleApplyFilters}>Regenerate</button>
                                             </div>
 
@@ -959,7 +987,8 @@ function SingleEventPage() {
                                                 />
                                             </div>
                                             ) : (
-                                            <p>No donors found.</p>
+                                                isSearchingByName ? 
+                                                    <p>No donors found.</p> : null
                                             )}
                                         </div>
                                         )}

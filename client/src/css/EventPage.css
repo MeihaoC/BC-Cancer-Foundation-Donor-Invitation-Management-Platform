@@ -367,13 +367,15 @@
 .required-text {
   color: var(--text-light);
   font-size: 12px;
-  margin-left: 4px;
+  margin-top: 8px;
+  margin-bottom: 8px;
   font-style: italic;
 }
 
 .required-star {
   color: red;
   margin-left: 4px;
+  margin-right: 4px;
   font-size: 14px;
 }
 
