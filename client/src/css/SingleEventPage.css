@@ -175,13 +175,6 @@
     border: 1px solid var(--table-border);
     padding: 8px;
     text-align: left;
-
-    /*
-    overflow: hidden;         
-    text-overflow: ellipsis;  
-    white-space: nowrap;
-    */
-
     white-space: normal; 
     word-wrap: break-word; 
     overflow-wrap: break-word;

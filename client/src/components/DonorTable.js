@@ -21,7 +21,7 @@ const engagementColorMap = {
   "Rarely Engaged": "tag-rarely-engaged"
 };
 
-const DonorTable = ({ donors, showActions, handleAddDonor, handleRemoveDonor }) => {
+const DonorTable = ({ donors, showActions, handleRemoveDonor }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
@@ -90,7 +90,6 @@ const DonorTable = ({ donors, showActions, handleAddDonor, handleRemoveDonor }) 
               <td>{donor.pmm}</td>
               {showActions && (
                 <td>
-                  {handleAddDonor && <button onClick={() => handleAddDonor(donor)}>Add</button>}
                   {handleRemoveDonor && <button className="remove-button" onClick={() => handleRemoveDonor(donor.id)}>Remove</button>}
                 </td>
               )}

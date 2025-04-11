@@ -10,6 +10,7 @@ import { FaUser, FaHospital, FaUsers, FaMapMarkedAlt } from "react-icons/fa";
 import Topbar from "../components/Topbar";
 import Sidebar from "../components/Sidebar";
 import EventFormPopup from "../components/EventFormPopup";
+import EditDonorTable from "../components/EditDonorTable";
 
 // API: '/events/:eventId'
 function SingleEventPage() {
@@ -327,27 +328,27 @@ function SingleEventPage() {
     // Add a donor to the temporary list
     const handleAddDonor = async (donor) => {
         try {
-            // put donor ids in an array
-            if (!Array.isArray(donor.id)) {
-                donor.id = [donor.id];
-            }
+            // Create a donorIdArray for the backend without mutating donor.id
+            const donorIdArray = Array.isArray(donor.id) ? donor.id : [donor.id]
+
             // send a request to the backend to add the donor temporarily
-            await axios.post(`http://localhost:5001/api/events/${eventId}/donors/add`, { donorIds: donor.id });
+            await axios.post(`http://localhost:5001/api/events/${eventId}/donors/add`, { donorIds: donorIdArray });
+            
             if (!tempDonorList.some(d => d.id === donor.id)) {
-                setTempDonorList([...tempDonorList, donor]);
+                setTempDonorList(prev => [...prev, donor]);
 
                 // filter out the selected donor from the recommended lists
                 if (bestMatchedDonors.some(d => d.id === donor.id)) {
-                    setWasBestMatchedDonors([...wasBestMatchedDonors, donor]);
-                    setBestMatchedDonors(bestMatchedDonors.filter(d => d.id !== donor.id));
-                } 
+                    setWasBestMatchedDonors(prev => [...prev, donor]);
+                    setBestMatchedDonors(prev => prev.filter(d => d.id !== donor.id));
+                }
                 if (additionalDonors.some(d => d.id === donor.id)) {
-                    setWasAdditionalDonors([...wasAdditionalDonors, donor]);
-                    setAdditionalDonors(additionalDonors.filter(d => d.id !== donor.id));
+                    setWasAdditionalDonors(prev => [...prev, donor]);
+                    setAdditionalDonors(prev => prev.filter(d => d.id !== donor.id));
                 }
                 if (matchedDonors.some(d => d.id === donor.id)) {
-                    setWasMatchedDonors([...wasMatchedDonors, donor]);
-                    setMatchedDonors(matchedDonors.filter(d => d.id !== donor.id));
+                    setWasMatchedDonors(prev => [...prev, donor]);
+                    setMatchedDonors(prev => prev.filter(d => d.id !== donor.id));
                 }
             }
         } catch (error) {
@@ -725,16 +726,16 @@ function SingleEventPage() {
                                             </button>
                                         </div>
 
-                                        {/* Donor Tables */}
+                                        {/* Edit Donor Tables */}
                                         {autoSubTab === "best" && (
-                                        <DonorTable
+                                        <EditDonorTable
                                             donors={bestMatchedDonors}
                                             showActions={true}
                                             handleAddDonor={handleAddDonor}
                                         />
                                         )}
                                         {autoSubTab === "additional" && (
-                                        <DonorTable
+                                        <EditDonorTable
                                             donors={additionalDonors}
                                             showActions={true}
                                             handleAddDonor={handleAddDonor}
@@ -784,7 +785,7 @@ function SingleEventPage() {
                                         {matchedDonors.length > 0 ? (
                                         <div>
                                             <h3>Result:</h3>
-                                            <DonorTable
+                                            <EditDonorTable
                                             donors={matchedDonors}
                                             showActions={true}
                                             handleAddDonor={handleAddDonor}
@@ -908,66 +909,66 @@ function SingleEventPage() {
                                             </div>
 
                                             {autoSubTab === "best" && (
-                                            <DonorTable donors={bestMatchedDonors} showActions={true} handleAddDonor={handleAddDonor} />
+                                            <EditDonorTable donors={bestMatchedDonors} showActions={true} handleAddDonor={handleAddDonor} />
                                             )}
                                             {autoSubTab === "additional" && (
-                                            <DonorTable donors={additionalDonors} showActions={true} handleAddDonor={handleAddDonor} />
+                                            <EditDonorTable donors={additionalDonors} showActions={true} handleAddDonor={handleAddDonor} />
                                             )}
                                         </div>
                                         )}
 
                                         {/* Search Donors Content */}
                                         {topTab === "search" && (
-                                    <div className="search-content">
-                                        <div className="search-name-bar">
-                                            <div className="autocomplete-container">
-                                                <input
-                                                type="text"
-                                                value={searchName}
-                                                onChange={handleSearchInputChange}
-                                                placeholder="Search donor name"
-                                                />
+                                        <div className="search-content">
+                                            <div className="search-name-bar">
+                                                <div className="autocomplete-container">
+                                                    <input
+                                                    type="text"
+                                                    value={searchName}
+                                                    onChange={handleSearchInputChange}
+                                                    placeholder="Search donor name"
+                                                    />
 
-                                                {isLoading && (
-                                                    <div className="loading-indicator">
-                                                    <div className="spinner"></div>
-                                                    </div>
-                                                )}
+                                                    {isLoading && (
+                                                        <div className="loading-indicator">
+                                                        <div className="spinner"></div>
+                                                        </div>
+                                                    )}
 
-                                                {showSuggestions && suggestions.length > 0 && (
-                                                <div 
-                                                    className="suggestions-dropdown"
-                                                    ref={dropdownRef} // Add the ref here
-                                                >
-                                                    {suggestions.map((suggestion) => (
+                                                    {showSuggestions && suggestions.length > 0 && (
                                                     <div 
-                                                        key={suggestion.id} 
-                                                        className="suggestion-item"
-                                                        onClick={() => handleSelectSuggestion(suggestion)}
+                                                        className="suggestions-dropdown"
+                                                        ref={dropdownRef} // Add the ref here
                                                     >
-                                                        {suggestion.name}
+                                                        {suggestions.map((suggestion) => (
+                                                        <div 
+                                                            key={suggestion.id} 
+                                                            className="suggestion-item"
+                                                            onClick={() => handleSelectSuggestion(suggestion)}
+                                                        >
+                                                            {suggestion.name}
+                                                        </div>
+                                                        ))}
                                                     </div>
-                                                    ))}
+                                                    )}
                                                 </div>
-                                                )}
+                                                <button onClick={handleSearchByName}>Search</button>
                                             </div>
-                                            <button onClick={handleSearchByName}>Search</button>
+                                        
+                                            {matchedDonors.length > 0 ? (
+                                            <div>
+                                                <h3>Result:</h3>
+                                                <EditDonorTable
+                                                donors={matchedDonors}
+                                                showActions={true}
+                                                handleAddDonor={handleAddDonor}
+                                                />
+                                            </div>
+                                            ) : (
+                                            <p>No donors found.</p>
+                                            )}
                                         </div>
-                                    
-                                        {matchedDonors.length > 0 ? (
-                                        <div>
-                                            <h3>Result:</h3>
-                                            <DonorTable
-                                            donors={matchedDonors}
-                                            showActions={true}
-                                            handleAddDonor={handleAddDonor}
-                                            />
-                                        </div>
-                                        ) : (
-                                        <p>No donors found.</p>
                                         )}
-                                    </div>
-                                    )}
                                         <div className="donor-add-form-actions">
                                         <button className="cancel-button" onClick={handleCloseAddDonors}>Close</button>
                                         </div>
