@@ -1005,9 +1005,6 @@ function SingleEventPage() {
                                             />
                                         )}
                                         </div>
-                                        <div className="donor-add-form-actions">
-                                        <button className="cancel-button" onClick={handleCloseAddDonors}>Close</button>
-                                        </div>
                                     </div>
                                     )}
                                     {!isAddingDonors && (
