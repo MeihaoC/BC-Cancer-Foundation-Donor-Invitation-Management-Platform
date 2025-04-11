@@ -330,6 +330,36 @@
   cursor: not-allowed;
 }
 
+/* Container for rows-per-page that matches .pagination border and radius */
+.rows-per-page {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 4px;
+  overflow: hidden;  /* ensures children don't spill out of rounded corners */
+}
+
+/* The label, similar to a page-item */
+.rows-per-page > label {
+  margin: 0;
+  padding: 8px 16px;
+  background-color: #fff;
+  color: gray;
+  font-weight: normal;
+}
+
+/* The select, styled like a page-item */
+.rows-per-page > label > select {
+  appearance: none; /* remove default OS dropdown arrow (optional, can show your own) */
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  outline: none;
+  padding: 4px 8px;
+  background-color: #fff;
+  color: black;
+  cursor: pointer;
+  font-size: 14px;
+}  
+
 /* Styling for the Add New Event Form */
 /* Modal Overlay */
 .modal-overlay {
