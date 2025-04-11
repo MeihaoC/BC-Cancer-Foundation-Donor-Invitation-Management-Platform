@@ -175,9 +175,40 @@
     border: 1px solid var(--table-border);
     padding: 8px;
     text-align: left;
-    overflow: hidden;         /* Hide overflowing text */
-  text-overflow: ellipsis;  /* Show an ellipsis (...) for overflow */
-  white-space: nowrap;      /* Prevents wrapping */
+
+    /*
+    overflow: hidden;         
+    text-overflow: ellipsis;  
+    white-space: nowrap;
+    */
+
+    white-space: normal; 
+    word-wrap: break-word; 
+    overflow-wrap: break-word;
+  }
+
+  /* Ensure each Medical Focus tag wraps as a block if space runs out */
+  .donor-table td span.tag-brain-cancer,
+  .donor-table td span.tag-breast-cancer,
+  .donor-table td span.tag-colon-cancer,
+  .donor-table td span.tag-leukemia-cancer,
+  .donor-table td span.tag-lung-cancer,
+  .donor-table td span.tag-lymphoma-cancer,
+  .donor-table td span.tag-ovarian-cancer,
+  .donor-table td span.tag-pancreatic-cancer,
+  .donor-table td span.tag-prostate-cancer,
+  .donor-table td span.tag-skin-cancer,
+  .donor-table td span.tag-default-focus {
+    /* display each tag as an inline-block so it can wrap to a new line */
+    display: inline-block;
+    margin: 0 4px 4px 0;
+    
+    /*
+      By default, the text inside each tag won't wrap. 
+      If you want the *text inside a tag* to wrap onto multiple lines,
+      remove the white-space: nowrap; line below.
+    */
+    white-space: nowrap;
   }
   
   table th {

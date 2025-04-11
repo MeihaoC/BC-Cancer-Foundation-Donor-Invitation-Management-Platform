@@ -34,18 +34,18 @@ const DonorTable = ({ donors, showActions, handleAddDonor, handleRemoveDonor }) 
       <table className="donor-table">
         <colgroup>
           <col style={{ width: "10%" }} />
-          <col style={{ width: "10%" }} />
+          <col style={{ width: "8%" }} />
           <col style={{ width: "10%" }} />
           <col style={{ width: "15%" }} />
           <col style={{ width: "15%" }} />
-          <col style={{ width: "10%" }} />
+          <col style={{ width: "15%" }} />
           <col style={{ width: "10%" }} />
           {showActions && <col style={{ width: "10%" }} />}
         </colgroup>
         <thead>
           <tr>
             <th>Donor Name</th>
-            <th>Total Donations</th>
+            <th>Donations</th>
             <th>City</th>
             <th>Medical Focus</th>
             <th>Engagement</th>
