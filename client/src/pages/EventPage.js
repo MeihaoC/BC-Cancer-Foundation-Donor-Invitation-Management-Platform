@@ -5,6 +5,7 @@ import "../css/EventPage.css";
 import Topbar from "../components/Topbar";
 import Sidebar from "../components/Sidebar";
 import EventFormPopup from "../components/EventFormPopup";
+import Pagination from "../components/Pagination";
 
 /**
  * EventPage Component
@@ -45,7 +46,7 @@ export default function EventPage() {
 
     // Pagination state
     const [currentPage, setCurrentPage] = useState(1);
-    const eventsPerPage = 10;
+    const [eventsPerPage, setEventsPerPage] = useState(10);
 
     // Calculate total pages based on eventData length
     const totalPages = Math.ceil(eventData.length / eventsPerPage);
@@ -198,6 +199,11 @@ export default function EventPage() {
             .catch((err) => console.error("Error fetching user names:", err));
     }, []);
 
+    const handleRowsPerPageChange = (e) => {
+        setEventsPerPage(Number(e.target.value));
+        setCurrentPage(1); // reset to first page when changing rows per page
+      };
+
     return (
         <div className="app-container">
             <Topbar />
@@ -280,41 +286,14 @@ export default function EventPage() {
                             </tbody>
                         </table>
 
-                        {/* Numeric Pagination */}
-                        <div className="pagination-wrapper">
-                            <ul className="pagination">
-                                {/* Previous Button */}
-                                <li
-                                className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}
-                                onClick={() => {
-                                    if (currentPage > 1) setCurrentPage(currentPage - 1);
-                                }}
-                                >
-                                Previous
-                                </li>
-
-                                {/* Page Number Buttons */}
-                                {pageNumbers.map((number) => (
-                                <li
-                                    key={number}
-                                    className={`page-item ${currentPage === number ? 'active' : ''}`}
-                                    onClick={() => setCurrentPage(number)}
-                                >
-                                    {number}
-                                </li>
-                                ))}
-
-                                {/* Next Button */}
-                                <li
-                                className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}
-                                onClick={() => {
-                                    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
-                                }}
-                                >
-                                Next
-                                </li>
-                            </ul>
-                        </div>
+                        {/* Use the Pagination component */}
+                        <Pagination
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        rowsPerPage={eventsPerPage}
+                        onPageChange={(page) => setCurrentPage(page)}
+                        onRowsPerPageChange={handleRowsPerPageChange}
+                        />
 
                         {/* POPUP MODAL for "Add New Event" */}
                         {isFormVisible && (
