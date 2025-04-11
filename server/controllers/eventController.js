@@ -176,6 +176,9 @@ exports.suggestDonors = async (req, res) => {
     const [[event]] = await db.execute('SELECT * FROM Event WHERE id = ?', [eventId]);
     if (!event) return res.status(404).json({ error: 'Event not found' });
 
+    // Get list size from query param or fallback to event.capacity
+    const listSize = parseInt(req.query.listSize) || event.capacity;
+
     const [donors] = await db.execute(`
       SELECT d.id, CONCAT(d.first_name, ' ', d.last_name) AS name, d.city, d.email, d.total_donation, d.engagement,
              GROUP_CONCAT(mf.name) AS medical_focus, d.pmm
@@ -227,15 +230,15 @@ exports.suggestDonors = async (req, res) => {
         .sort((a, b) => engagementRank[b.engagement] - engagementRank[a.engagement]);
 
       for (const d of tierMatches) {
-        if (matches.length >= event.capacity * 2) break;
+        if (matches.length >= listSize * 2) break;
         matches.push(d);
         used.add(d.id);
       }
 
-      if (matches.length >= event.capacity * 2) break;
+      if (matches.length >= listSize * 2) break;
     }
 
-    while (matches.length < event.capacity * 2) {
+    while (matches.length < listSize * 2) {
       const remaining = donorsWithArrayFocus.filter(d => !used.has(d.id) && isEligible(d));
       if (!remaining.length) break;
       const pick = remaining[Math.floor(Math.random() * remaining.length)];
@@ -243,8 +246,8 @@ exports.suggestDonors = async (req, res) => {
       used.add(pick.id);
     }
 
-    const best = matches.slice(0, event.capacity);
-    const additional = matches.slice(event.capacity);
+    const best = matches.slice(0, listSize);
+    const additional = matches.slice(listSize);
     res.json({ best, additional });
   } catch (err) {
     console.error(err);
