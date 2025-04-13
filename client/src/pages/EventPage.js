@@ -118,6 +118,7 @@ export default function EventPage() {
         try {
             const response = await axios.post("http://localhost:5001/api/events", payload);
             console.log("Event added:", response.data);
+            alert(response.data.message);
             // After successful creation, refresh the events list.
             await fetchAllEvents();
             // Reset the form and hide it.
@@ -319,5 +320,5 @@ export default function EventPage() {
                 </div>
             </div>
         </div>
-                );
-            }
+    );
+}

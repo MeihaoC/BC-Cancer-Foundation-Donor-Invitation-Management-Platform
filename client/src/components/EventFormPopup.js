@@ -2,10 +2,11 @@ import React from "react";
 
 // Utility: Capitalize camelCase fields for labels
 const capitalizeFieldName = (fieldName) => {
-    return fieldName
-        .replace(/([A-Z])/g, " $1")
-        .trim()
-        .replace(/\b\w/g, (char) => char.toUpperCase());
+  return fieldName
+    .replace(/_/g, " ")                 // Replace underscores with spaces
+    .replace(/([A-Z])/g, " $1")         // Add space before capital letters (camelCase)
+    .trim()
+    .replace(/\b\w/g, (char) => char.toUpperCase());  // Capitalize each word
 };
 
 const EventFormPopup = ({
@@ -39,7 +40,7 @@ const EventFormPopup = ({
                       value={eventData.medicalFocus}
                       onChange={(e) => setEventData({ ...eventData, medicalFocus: e.target.value })}
                     >
-                      <option value="">Select Medical Focus</option>
+                      <option value="">Medical Focus</option>
                       {medicalFocusOptions.map((name) => (
                         <option key={name} value={name}>
                           {name}
@@ -52,7 +53,7 @@ const EventFormPopup = ({
                       value={eventData.coordinator}
                       onChange={(e) => setEventData({ ...eventData, coordinator: e.target.value })}
                     >
-                      <option value="">Select Coordinator</option>
+                      <option value="">Coordinator</option>
                       {userOptions.map((name) => (
                         <option key={name} value={name}>
                           {name}
@@ -65,7 +66,7 @@ const EventFormPopup = ({
                       value={eventData.fundraiser}
                       onChange={(e) => setEventData({ ...eventData, fundraiser: e.target.value })}
                     >
-                      <option value="">Select Fundraiser</option>
+                      <option value="">Fundraiser</option>
                       {userOptions.map((name) => (
                         <option key={name} value={name}>
                           {name}

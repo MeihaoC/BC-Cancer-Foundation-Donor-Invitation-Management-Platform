@@ -662,7 +662,7 @@ function SingleEventPage() {
                                     </button>
                                 </div>
                             )}
-
+                            {/* Update reset*/}
                             {/* B) Generating a new donor list from scratch */}
                             {isGenerating && (
                                 <div className="donor-edit-container">
