@@ -6,6 +6,7 @@ import Topbar from "../components/Topbar";
 import Sidebar from "../components/Sidebar";
 import EventFormPopup from "../components/EventFormPopup";
 import Pagination from "../components/Pagination";
+import { FaSearch } from 'react-icons/fa';
 
 /**
  * EventPage Component
@@ -214,11 +215,11 @@ export default function EventPage() {
                     <div className="event-container">
                         {/* Updated header with search bar on left and add button on right */}
                         <div className="event-header">
-                            <div className="search-bar">
+                            <div className="search-wrapper">
                                 <select
-                                className="search-select"
-                                value={searchField}
-                                onChange={(e) => setSearchField(e.target.value)}
+                                    className="search-select"
+                                    value={searchField}
+                                    onChange={(e) => setSearchField(e.target.value)}
                                 >
                                     <option value="name">Event Name</option>
                                     <option value="city">City</option>
@@ -227,14 +228,21 @@ export default function EventPage() {
                                     <option value="fundraiser">Fundraiser</option>
                                     <option value="status">Status</option>
                                 </select>
-                                <input
+
+                                <div className="search-input-wrapper">
+                                    <span className="search-icon"><FaSearch /></span>
+                                    <input
                                     className="search-input"
-                                    placeholder="Search"
+                                    placeholder="Search..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                    onKeyDown={(e) => {if (e.key === "Enter") handleSearch(e);}}
-                                />
+                                    onKeyDown={(e) => {
+                                        if (e.key === "Enter") handleSearch(e);
+                                    }}
+                                    />
+                                </div>
                             </div>
+
                             <button className="add-button" onClick={() => setIsFormVisible(true)}>
                                     + Add event
                             </button>

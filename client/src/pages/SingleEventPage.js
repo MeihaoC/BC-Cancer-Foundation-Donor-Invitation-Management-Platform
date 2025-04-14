@@ -11,6 +11,7 @@ import Topbar from "../components/Topbar";
 import Sidebar from "../components/Sidebar";
 import EventFormPopup from "../components/EventFormPopup";
 import EditDonorTable from "../components/EditDonorTable";
+import { FaSearch } from "react-icons/fa";
 
 // API: '/events/:eventId'
 function SingleEventPage() {
@@ -333,7 +334,7 @@ function SingleEventPage() {
     };
 
     // Add a donor to the temporary list
-    const handleAddDonor = async (donor) => {
+    const handleAddDonor = async (donor, options = { showAlert: true }) => {
         try {
             // Create a donorIdArray for the backend without mutating donor.id
             const donorIdArray = Array.isArray(donor.id) ? donor.id : [donor.id]
@@ -358,9 +359,26 @@ function SingleEventPage() {
                     setMatchedDonors(prev => prev.filter(d => d.id !== donor.id));
                 }
             }
+            // Show alert if donor added successfully
+            if (options.showAlert) {
+                alert("Donor added temporarily!");
+            }
         } catch (error) {
             console.error("Failed to add donor temporarily:", error);
             alert("Failed to add donor");
+        }
+    };
+
+    // Bulk add donors to the temporary list
+    const handleBulkAddDonors = async (donorArray) => {
+        try {
+            for (const donor of donorArray) {
+                await handleAddDonor(donor, { showAlert: false }); // pass a flag to suppress alert
+            }
+            alert("All selected donors added temporarily!");
+        } catch (error) {
+            console.error("Bulk add failed:", error);
+            alert("Failed to add some donors");
         }
     };
 
@@ -368,6 +386,7 @@ function SingleEventPage() {
     const handleRemoveDonor = async (id) => {
         try {
             await axios.post(`http://localhost:5001/api/events/${eventId}/donors/remove`, { donorId: id });
+            alert("Donor removed temporarily!");
             setTempDonorList(tempDonorList.filter(d => d.id !== id));
             if (wasBestMatchedDonors.some(d => d.id === id)) {
                 const donor = wasBestMatchedDonors.find(d => d.id === id);
@@ -431,6 +450,7 @@ function SingleEventPage() {
             setWasAdditionalDonors([]);
             setWasBestMatchedDonors([]);
             setWasMatchedDonors([]);
+            window.location.reload(); // Reload the page to reflect changes
             alert("Donor list generated and saved!");
         } catch (error) {
             console.error("Failed to save donor list:", error);
@@ -715,6 +735,8 @@ function SingleEventPage() {
                                                     <option value="Moderately Engaged">Moderately Engaged</option>
                                                     <option value="Rarely Engaged">Rarely Engaged</option>
                                                 </select>
+                                                <span className="info-icon" 
+                                                title={"Engagement level is based on total donations, event subscriptions, and donor status (deceased or excluded)."}>ⓘ</span>
                                                 <input
                                                     value={filterSize}
                                                     onChange={(e) => setFilterSize(e.target.value)}
@@ -749,6 +771,7 @@ function SingleEventPage() {
                                                 donors={bestMatchedDonors}
                                                 showActions={true}
                                                 handleAddDonor={handleAddDonor}
+                                                handleBulkAddDonors={handleBulkAddDonors}
                                             />
                                             )}
                                             {autoSubTab === "additional" && (
@@ -756,6 +779,7 @@ function SingleEventPage() {
                                                 donors={additionalDonors}
                                                 showActions={true}
                                                 handleAddDonor={handleAddDonor}
+                                                handleBulkAddDonors={handleBulkAddDonors}
                                             />
                                             )}
                                         </div>
@@ -766,12 +790,15 @@ function SingleEventPage() {
                                         <div className="search-content">
                                             <div className="search-name-bar">
                                                 <div className="autocomplete-container">
-                                                    <input
-                                                    type="text"
-                                                    value={searchName}
-                                                    onChange={handleSearchInputChange}
-                                                    placeholder="Search donor name"
-                                                    />
+                                                    <div className="search-input-wrapper">
+                                                        <FaSearch className="search-icon" />
+                                                        <input
+                                                        type="text"
+                                                        value={searchName}
+                                                        onChange={handleSearchInputChange}
+                                                        placeholder="Search donor name"
+                                                        />
+                                                    </div>
 
                                                     {isLoading && (
                                                         <div className="loading-indicator">
@@ -806,6 +833,7 @@ function SingleEventPage() {
                                                 donors={matchedDonors}
                                                 showActions={true}
                                                 handleAddDonor={handleAddDonor}
+                                                handleBulkAddDonors={handleBulkAddDonors}
                                                 />
                                             </div>
                                             ) : (
@@ -901,6 +929,8 @@ function SingleEventPage() {
                                                 <option value="Moderately Engaged">Moderately Engaged</option>
                                                 <option value="Rarely Engaged">Rarely Engaged</option>
                                             </select>
+                                            <span className="info-icon" 
+                                                title={"Engagement level is based on total donations, event subscriptions, and donor status (deceased or excluded)."}>ⓘ</span>
                                             <input
                                                     value={filterSize}
                                                     onChange={(e) => setFilterSize(e.target.value)}
@@ -908,6 +938,8 @@ function SingleEventPage() {
                                                     min="1"
                                                     placeholder="List Size"
                                             />
+                                            <span className="info-icon" 
+                                                title={"The number of donors to be matched in each list"}>ⓘ</span>
                                             <button onClick={handleApplyFilters}>Regenerate</button>
                                             </div>
 
@@ -927,10 +959,20 @@ function SingleEventPage() {
                                             </div>
 
                                             {autoSubTab === "best" && (
-                                            <EditDonorTable donors={bestMatchedDonors} showActions={true} handleAddDonor={handleAddDonor} />
+                                            <EditDonorTable 
+                                                donors={bestMatchedDonors} 
+                                                showActions={true} 
+                                                handleAddDonor={handleAddDonor}
+                                                handleBulkAddDonors={handleBulkAddDonors} 
+                                            />
                                             )}
                                             {autoSubTab === "additional" && (
-                                            <EditDonorTable donors={additionalDonors} showActions={true} handleAddDonor={handleAddDonor} />
+                                            <EditDonorTable 
+                                                donors={additionalDonors} 
+                                                showActions={true} 
+                                                handleAddDonor={handleAddDonor}
+                                                handleBulkAddDonors={handleBulkAddDonors} 
+                                            />
                                             )}
                                         </div>
                                         )}
@@ -940,12 +982,15 @@ function SingleEventPage() {
                                         <div className="search-content">
                                             <div className="search-name-bar">
                                                 <div className="autocomplete-container">
-                                                    <input
-                                                    type="text"
-                                                    value={searchName}
-                                                    onChange={handleSearchInputChange}
-                                                    placeholder="Search donor name"
-                                                    />
+                                                    <div className="search-input-wrapper">
+                                                        <FaSearch className="search-icon" />
+                                                        <input
+                                                        type="text"
+                                                        value={searchName}
+                                                        onChange={handleSearchInputChange}
+                                                        placeholder="Search donor name"
+                                                        />
+                                                    </div>
 
                                                     {isLoading && (
                                                         <div className="loading-indicator">
@@ -977,9 +1022,10 @@ function SingleEventPage() {
                                             <div>
                                                 <h3>Result:</h3>
                                                 <EditDonorTable
-                                                donors={matchedDonors}
-                                                showActions={true}
-                                                handleAddDonor={handleAddDonor}
+                                                    donors={matchedDonors}
+                                                    showActions={true}
+                                                    handleAddDonor={handleAddDonor}
+                                                    handleBulkAddDonors={handleBulkAddDonors}
                                                 />
                                             </div>
                                             ) : (
@@ -995,9 +1041,9 @@ function SingleEventPage() {
                                             <p>No donors added yet</p>
                                         ) : (
                                             <DonorTable
-                                            donors={tempDonorList}
-                                            showActions={true}
-                                            handleRemoveDonor={handleRemoveDonor}
+                                                donors={tempDonorList}
+                                                showActions={true}
+                                                handleRemoveDonor={handleRemoveDonor}
                                             />
                                         )}
                                         </div>

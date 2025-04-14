@@ -52,7 +52,7 @@
 .delete-button {
   background-color: var(--danger-color);
   color: white;
-  padding: 8px 12px;
+  padding: 6px 10px;
   border: none;
   cursor: pointer;
   border-radius: var(--border-radius);
@@ -369,7 +369,7 @@
 .filters-row {
   display: flex;
   flex-direction: row;
-  gap: 8px;
+  gap: 10px;
   margin-bottom: 16px;
   background: #f4f4f4;
   padding: 16px;
@@ -393,6 +393,21 @@
 .filters-row button {
   margin-right: 0;
   margin-left: auto;
+}
+
+.info-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: #f0f0f0;
+  color: #666;
+  font-size: 16px;
+  cursor: help;
+  margin-top: auto;
+  margin-bottom: auto;
 }
 
 /* Sub-Tabs (Best vs Additional) */
@@ -422,25 +437,6 @@
   border-bottom: 2px solid var(--primary-color);
 }
 
-/* Search content */
-.search-content {
-  padding: 16px;
-  border-radius: 8px;
-}
-
-.search-content p {
-  margin-left: 8px;
-}
-
-.search-name-bar {
-  background-color: #f9fafb;
-  padding: 16px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
 /* Temporary Donor List */
 .temp-donor-list {
   background-color: #f9fafb;
@@ -449,6 +445,7 @@
   margin-top: 24px;
   margin-left: 16px;
   margin-right: 16px;
+  margin-bottom: 24px;
 }
 
 .temp-donor-list h3 {
@@ -498,6 +495,25 @@
   background-color: var(--danger-hover) !important;
 }
 
+/* Search content */
+.search-content {
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.search-content p {
+  margin-left: 8px;
+}
+
+.search-name-bar {
+  background-color: #f9fafb;
+  padding: 16px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 /* Search Bar and Suggestions */
 .autocomplete-container {
   position: relative;
@@ -513,6 +529,29 @@
   border: 1px solid #ccc;
   border-radius: 4px;
   box-sizing: border-box;
+}
+
+.search-input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.search-input-wrapper input {
+  width: 100%;
+  padding: 8px 8px 8px 32px; /* left padding for icon space */
+  border-radius: 4px;
+  box-sizing: border-box;
+  font-size: 14px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+  font-size: 14px;
+  pointer-events: none;
 }
 
 .suggestions-dropdown {
@@ -551,19 +590,4 @@
   transform: translateY(-50%);
   font-size: 12px;
   color: #666;
-}
-
-.info-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background-color: #f0f0f0;
-  color: #666;
-  font-size: 16px;
-  cursor: help;
-  margin-top: auto;
-  margin-bottom: auto;
 }

@@ -21,7 +21,7 @@ const engagementColorMap = {
   "Rarely Engaged": "tag-rarely-engaged"
 };
 
-const EditDonorTable = ({ donors, showActions, handleAddDonor }) => {
+const EditDonorTable = ({ donors, showActions, handleAddDonor, handleBulkAddDonors }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [selectedDonors, setSelectedDonors] = useState([]);
@@ -52,13 +52,11 @@ const EditDonorTable = ({ donors, showActions, handleAddDonor }) => {
 
   // Bulk-add action: iterate through selected donors and call handleAddDonor
   const handleBulkAdd = () => {
-    selectedDonors.forEach(id => {
-      const donor = donors.find(d => d.id === id);
-      if (donor && handleAddDonor) {
-        handleAddDonor(donor);
-      }
-    });
-    setSelectedDonors([]); // clear selections after processing
+    const selected = donors.filter(donor => selectedDonors.includes(donor.id));
+    if (handleBulkAddDonors) {
+      handleBulkAddDonors(selected); // pass selected donor objects
+    }
+    setSelectedDonors([]); // clear selection
   };
 
   return (
