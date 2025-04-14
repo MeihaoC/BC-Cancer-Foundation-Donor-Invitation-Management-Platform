@@ -312,6 +312,14 @@ function SingleEventPage() {
 
     // Apply filters to regenerate donors
     const handleApplyFilters = async () => {
+        // Validate the list size first
+        const size = parseInt(filterSize);
+
+        if (isNaN(size) || size <= 0) {
+            alert("Please enter a valid list size greater than 0.");
+            return; // Stop the function from continuing
+        }
+        
         try {
             console.log("Filters:", filterCity, filterMedicalFocus, filterEngagement, filterSize);
             const response = await axios.get(`http://localhost:5001/api/events/${eventId}/suggest-donors`, {
