@@ -1,4 +1,4 @@
-# Donor Invitation Management System for BC Cancer Foundation
+# BC Cancer Foundation Donor Invitation Management Platform
 
 A full-stack web application designed to help the BC Cancer Foundation manage donor data, organize fundraising events, and generate curated donor invitation lists based on engagement level, donation history, and other filters.
 
