@@ -28,7 +28,7 @@ npm install
 
 3. Start the backend server
 ```bash
-npm start
+node server.js
 ```
 
 4. Install frontend dependencies
