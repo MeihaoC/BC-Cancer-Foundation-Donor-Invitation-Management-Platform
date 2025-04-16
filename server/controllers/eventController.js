@@ -442,6 +442,7 @@ exports.getEventDetails = async (req, res) => {
       return res.status(404).json({ error: 'Event not found' });
     }
 
+    event.raw_date = event.date;
     event.date = formatDateToReadable(event.date);
 
     res.json(event);
