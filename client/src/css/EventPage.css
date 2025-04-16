@@ -409,6 +409,10 @@
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
+.modal-content h2 {
+  margin-bottom: 4px;
+}
+
 /* Adjust form input sizes for the modal if needed */
 .form-group {
   margin-bottom: 12px;
@@ -417,8 +421,8 @@
 .required-text {
   color: var(--text-light);
   font-size: 12px;
-  margin-top: 8px;
-  margin-bottom: 8px;
+  margin-top: 0;
+  margin-bottom: 16px;
   font-style: italic;
 }
 
