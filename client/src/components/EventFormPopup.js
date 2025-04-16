@@ -34,11 +34,11 @@ const EventFormPopup = ({
                     <span className="required-star">*</span>
                   </label>
       
-                  {key === "medicalFocus" ? (
+                  {key === "medicalFocus" || key === "medical_focus" ? (
                     <select
                       className="form-input"
-                      value={eventData.medicalFocus}
-                      onChange={(e) => setEventData({ ...eventData, medicalFocus: e.target.value })}
+                      value={eventData[key]}
+                      onChange={(e) => setEventData({ ...eventData, [key]: e.target.value })}
                     >
                       <option value="">Medical Focus</option>
                       {medicalFocusOptions.map((name) => (

@@ -33,7 +33,7 @@ function SingleEventPage() {
             capacity: "",
             coordinator: "",
             fundraiser: "",
-            detailed_info: ""
+            description: ""
         }
     ); // new event data for editing
     const [errors, setErrors] = useState({});
@@ -88,8 +88,20 @@ function SingleEventPage() {
                 // fetch the event data
                 const eventResponse = await axios.get('http://localhost:5001/api/events/' + eventId + '/details');
                 console.log(eventResponse.data);
+                console.log("Raw date from backend:", eventResponse.data.date);
                 setEvent(eventResponse.data);
-                setNewEvent(eventResponse.data);
+                const data = eventResponse.data;
+                setNewEvent({
+                    name: data.name,
+                    date: data.date,
+                    city: data.city,
+                    location: data.location,
+                    medical_focus: data.medical_focus,
+                    capacity: data.capacity,
+                    coordinator: data.coordinator,
+                    fundraiser: data.fundraiser,
+                    description: data.detailed_info
+                });
 
                 // fetch the donors data
                 const donorsResponse = await axios.get('http://localhost:5001/api/events/' + eventId + '/donors');
@@ -189,7 +201,7 @@ function SingleEventPage() {
             capacity: parseInt(newEvent.capacity, 10),
             coordinator: newEvent.coordinator,
             fundraiser: newEvent.fundraiser,
-            details: newEvent.detailed_info
+            details: newEvent.description
         };
 
         try {
