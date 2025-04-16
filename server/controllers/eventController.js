@@ -134,6 +134,11 @@ exports.createEvent = async (req, res) => {
     details
   } = req.body;
 
+  // Check if capacity is a positive number
+  if (!Number.isInteger(Number(capacity)) || Number(capacity) <= 0) {
+    return res.status(400).json({ error: 'Capacity must be a positive number' });
+  }
+  
   try {
     const [[focusRow]] = await db.execute(
       'SELECT id FROM Medical_Focus WHERE name = ?',
@@ -186,8 +191,10 @@ exports.suggestDonors = async (req, res) => {
     const [[event]] = await db.execute('SELECT * FROM Event WHERE id = ?', [eventId]);
     if (!event) return res.status(404).json({ error: 'Event not found' });
 
-    // Get list size from query param or fallback to event.capacity
-    const listSize = parseInt(req.query.listSize) || event.capacity;
+    let listSize = parseInt(req.query.listSize, 10);
+    if (!Number.isInteger(listSize) || listSize <= 0) {
+      listSize = event.capacity;
+    }
 
     const [donors] = await db.execute(`
       SELECT d.id, CONCAT(d.first_name, ' ', d.last_name) AS name, d.city, d.email, d.total_donation, d.engagement,
@@ -534,6 +541,10 @@ exports.updateEvent = async (req, res) => {
     fundraiser,
     details
   } = req.body;
+
+  if (!Number.isInteger(Number(capacity)) || Number(capacity) <= 0) {
+    return res.status(400).json({ error: 'Capacity must be a positive number' });
+  }
 
   try {
     const [[focusRow]] = await db.execute(
