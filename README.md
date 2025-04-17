@@ -24,20 +24,26 @@ git clone https://github.com/MeihaoC/CS5500-BC-Cancer-Foundation.git
 ```bash
 cd server
 npm install
+npm install bcryptjs
 ```
 
-3. Start the backend server
+3. Hash passwords for users to enable secure login
+```bash
+node scripts/hashAllUsers.js
+```
+
+4. Start the backend server
 ```bash
 node server.js
 ```
 
-4. Install frontend dependencies
+5. Install frontend dependencies
 ```bash
 cd client
 npm install
 ```
 
-5. Start the frontend application
+6. Start the frontend application
 ```bash
 npm start
 ```

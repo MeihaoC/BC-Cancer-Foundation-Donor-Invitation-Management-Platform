@@ -28,6 +28,10 @@ function Login() {
         try {
             const response = await axios.post("http://localhost:5001/api/login", {email, password});
             console.log('Login successful:', response.data);
+
+            localStorage.setItem('token', response.data.token); // store token
+            localStorage.setItem('user', JSON.stringify(response.data.user)); // store user info
+            
             navigate('/events');
         } catch (err) {
             console.error(err);
