@@ -95,7 +95,7 @@ function SingleEventPage() {
         const fetchData = async () => {
             try {
                 // fetch the event data
-                const eventResponse = await axios.get('http://localhost:5001/api/events/' + eventId + '/details');
+                const eventResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/events/` + eventId + '/details');
                 console.log(eventResponse.data);
                 console.log("Raw date from backend:", eventResponse.data.date);
                 setEvent(eventResponse.data);
@@ -113,7 +113,7 @@ function SingleEventPage() {
                 });
 
                 // fetch the donors data
-                const donorsResponse = await axios.get('http://localhost:5001/api/events/' + eventId + '/donors');
+                const donorsResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/events/` + eventId + '/donors');
                 console.log(donorsResponse.data);
                 setDonors(donorsResponse.data || []);
                 if (donorsResponse.data && donorsResponse.data.length > 0) {
@@ -147,12 +147,12 @@ function SingleEventPage() {
     // useEffect: Fetch events and dropdown options on component mount
     useEffect(() => {
         axios
-            .get("http://localhost:5001/api/events/medical-focuses")
+            .get(`${process.env.REACT_APP_API_URL}/api/events/medical-focuses`)
             .then((response) => setMedicalFocusOptions(response.data))
             .catch((err) => console.error("Error fetching medical focuses:", err));
 
         axios
-            .get("http://localhost:5001/api/events/users")
+            .get(`${process.env.REACT_APP_API_URL}/api/events/users`)
             .then((response) => setUserOptions(response.data))
             .catch((err) => console.error("Error fetching user names:", err));
     }, []);
@@ -160,7 +160,7 @@ function SingleEventPage() {
     // delete the event
     const handleDelete = async () => {
         try {
-            await axios.delete('http://localhost:5001/api/events/' + eventId);
+            await axios.delete(`${process.env.REACT_APP_API_URL}/api/events/` + eventId);
             alert("Event deleted successfully!");
             navigate('/events');
         } catch (error) {
@@ -216,7 +216,7 @@ function SingleEventPage() {
 
         try {
             console.log(payload);
-            const response = await axios.put("http://localhost:5001/api/events/" + eventId, payload);
+            const response = await axios.put(`${process.env.REACT_APP_API_URL}/api/events/` + eventId, payload);
             console.log("Event added:", response.data);
             alert("Event updated successfully!");
             // Reset the form and hide it.
@@ -241,7 +241,7 @@ function SingleEventPage() {
             }
             // export the donors
             // get donors data
-            const response = await axios.get('http://localhost:5001/api/events/' + eventId + '/donors/export', {
+            const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/events/` + eventId + '/donors/export', {
                 responseType: 'blob',
             });
             // create a URL to download the file
@@ -267,13 +267,13 @@ function SingleEventPage() {
     useEffect(() => {
         const fetchFilterOptions = async () => {
           try {
-            const citiesRes = await axios.get('http://localhost:5001/api/events/cities');
+            const citiesRes = await axios.get(`${process.env.REACT_APP_API_URL}/api/events/cities`);
             setCityOptions(citiesRes.data);
           } catch (error) {
             console.error("Failed to fetch city options:", error);
           }
           try {
-            const focusRes = await axios.get('http://localhost:5001/api/events/medical-focuses');
+            const focusRes = await axios.get(`${process.env.REACT_APP_API_URL}/api/events/medical-focuses`);
             setMedicalFocusOptions(focusRes.data);
           } catch (error) {
             console.error("Failed to fetch medical focus options:", error);
@@ -294,7 +294,7 @@ function SingleEventPage() {
     // Fetch recommended donors from backend
     const generateRecommendedDonors = async () => {
         try {
-            const response = await axios.get(`http://localhost:5001/api/events/${eventId}/suggest-donors`, {
+            const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/events/${eventId}/suggest-donors`, {
                 params: {
                     city: filterCity,
                     medical_focus: filterMedicalFocus,
@@ -316,7 +316,7 @@ function SingleEventPage() {
     // Search donors by name
     const handleSearchByName = async () => {
         try {
-            const response = await axios.get(`http://localhost:5001/api/events/${eventId}/donors/search`, {
+            const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/events/${eventId}/donors/search`, {
                 params: { name: searchName }
             });
             setIsSearchingByName(true);
@@ -345,7 +345,7 @@ function SingleEventPage() {
         
         try {
             console.log("Filters:", filterCity, filterMedicalFocus, filterEngagement, filterSize);
-            const response = await axios.get(`http://localhost:5001/api/events/${eventId}/suggest-donors`, {
+            const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/events/${eventId}/suggest-donors`, {
                 params: {
                     city: filterCity,
                     medical_focus: filterMedicalFocus,
@@ -371,7 +371,7 @@ function SingleEventPage() {
             const donorIdArray = Array.isArray(donor.id) ? donor.id : [donor.id]
 
             // send a request to the backend to add the donor temporarily
-            await axios.post(`http://localhost:5001/api/events/${eventId}/donors/add`, { donorIds: donorIdArray });
+            await axios.post(`${process.env.REACT_APP_API_URL}/api/events/${eventId}/donors/add`, { donorIds: donorIdArray });
             
             if (!tempDonorList.some(d => d.id === donor.id)) {
                 setTempDonorList(prev => [...prev, donor]);
@@ -416,7 +416,7 @@ function SingleEventPage() {
     // Remove a donor from the temporary list
     const handleRemoveDonor = async (id) => {
         try {
-            await axios.post(`http://localhost:5001/api/events/${eventId}/donors/remove`, { donorId: id });
+            await axios.post(`${process.env.REACT_APP_API_URL}/api/events/${eventId}/donors/remove`, { donorId: id });
             alert("Donor removed temporarily!");
             setTempDonorList(tempDonorList.filter(d => d.id !== id));
             if (wasBestMatchedDonors.some(d => d.id === id)) {
@@ -443,7 +443,7 @@ function SingleEventPage() {
     // Cancel generating a new list
     const handleCancelGenerate = async () => {
         try {
-            await axios.post(`http://localhost:5001/api/events/${eventId}/donors/cancel`);
+            await axios.post(`${process.env.REACT_APP_API_URL}/api/events/${eventId}/donors/cancel`);
             setIsGenerating(false);
             setTempDonorList([]);
 
@@ -472,8 +472,8 @@ function SingleEventPage() {
     // Save generated donor list as final list
     const handleSaveGenerate = async () => {
         try {
-            await axios.post(`http://localhost:5001/api/events/${eventId}/donors/save`);
-            const donorsResponse = await axios.get(`http://localhost:5001/api/events/${eventId}/donors`);
+            await axios.post(`${process.env.REACT_APP_API_URL}/api/events/${eventId}/donors/save`);
+            const donorsResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/events/${eventId}/donors`);
             setDonors(donorsResponse.data || []);
             setIsGenerating(false);
             setIsFormVisible(true);
@@ -499,7 +499,7 @@ function SingleEventPage() {
     // Cancel editing
     const handleCancelEdit = async () => {
         try {
-            await axios.post(`http://localhost:5001/api/events/${eventId}/donors/cancel`);
+            await axios.post(`${process.env.REACT_APP_API_URL}/api/events/${eventId}/donors/cancel`);
             setIsEditingFinalList(false);
             setTempDonorList([]);
             setIsAddingDonors(false); // also cancel any add donors UI if open
@@ -528,8 +528,8 @@ function SingleEventPage() {
     // Save edited donor list
     const handleSaveEdit = async () => {
         try {
-            await axios.post(`http://localhost:5001/api/events/${eventId}/donors/save`);
-            const donorsResponse = await axios.get(`http://localhost:5001/api/events/${eventId}/donors`);
+            await axios.post(`${process.env.REACT_APP_API_URL}/api/events/${eventId}/donors/save`);
+            const donorsResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/events/${eventId}/donors`);
             setDonors(donorsResponse.data || []);
             setIsEditingFinalList(false);
             setIsAddingDonors(false);
@@ -569,7 +569,7 @@ function SingleEventPage() {
         
         setIsLoading(true);
         try {
-        const response = await axios.get(`http://localhost:5001/api/events/${eventId}/donors/search`, {
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/events/${eventId}/donors/search`, {
             params: { name: value }
         });
         setSuggestions(response.data);

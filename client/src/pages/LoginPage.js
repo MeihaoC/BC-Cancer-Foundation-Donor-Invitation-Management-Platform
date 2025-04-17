@@ -26,7 +26,7 @@ function Login() {
         }
 
         try {
-            const response = await axios.post("http://localhost:5001/api/login", {email, password});
+            const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/login`, {email, password});
             console.log('Login successful:', response.data);
 
             localStorage.setItem('token', response.data.token); // store token
