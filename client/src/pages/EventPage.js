@@ -60,17 +60,19 @@ export default function EventPage() {
 
     // Form visibility and data
     const [isFormVisible, setIsFormVisible] = useState(false);
-    const [newEvent, setNewEvent] = useState({
-        eventName: "",
-        date: "",
-        city: "",
-        location: "",
-        medicalFocus: "",
-        capacity: "",
-        coordinator: "",
-        fundraiser: "",
-        description: ""
-    });
+    const [newEvent, setNewEvent] = useState(
+            {
+                name: "",
+                raw_date: new Date(), // Date object for date picker
+                city: "",
+                location: "",
+                medical_focus: "",
+                capacity: "",
+                coordinator: "",
+                fundraiser: "",
+                description: ""
+            }
+        );
     const [errors, setErrors] = useState({});
 
     // Dropdown options state
@@ -105,16 +107,17 @@ export default function EventPage() {
 
         // Map frontend fields to backend keys.
         const payload = {
-            name: newEvent.eventName,
-            date: newEvent.date,
+            name: newEvent.name,
+            date: newEvent.raw_date, // Date object for date picker
             location: newEvent.location,
             city: newEvent.city,
-            medical_focus: newEvent.medicalFocus,
+            medical_focus: newEvent.medical_focus,
             capacity: parseInt(newEvent.capacity, 10),
             coordinator: newEvent.coordinator,
             fundraiser: newEvent.fundraiser,
             details: newEvent.description
         };
+        console.log("Payload to be sent:", payload);
 
         try {
             const response = await axios.post("http://localhost:5001/api/events", payload);
@@ -126,7 +129,7 @@ export default function EventPage() {
             setIsFormVisible(false);
             setNewEvent({
                 eventName: "",
-                date: "",
+                raw_date: new Date(), // Date object for date picker
                 city: "",
                 location: "",
                 medicalFocus: "",
@@ -146,11 +149,11 @@ export default function EventPage() {
     const handleCancelEvent = () => {
         setIsFormVisible(false);
         setNewEvent({
-            eventName: "",
-            date: "",
+            name: "",
+            raw_date: new Date(), // Date object for date picker
             city: "",
             location: "",
-            medicalFocus: "",
+            medical_focus: "",
             capacity: "",
             coordinator: "",
             fundraiser: "",
