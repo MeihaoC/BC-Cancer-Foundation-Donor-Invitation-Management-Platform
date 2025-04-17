@@ -26,7 +26,7 @@ function SingleEventPage() {
     const [newEvent, setNewEvent] = useState(
         {
             name: "",
-            date: "",
+            raw_date: new Date(), // Date object for date picker
             city: "",
             location: "",
             medical_focus: "",
@@ -80,6 +80,15 @@ function SingleEventPage() {
     const dropdownRef = useRef(null); // Create a ref for the dropdown menu
     const [isSearchingByName, setIsSearchingByName] = useState(false); // Flag to indicate if searching by name
 
+    function formatDateForInput(dateString) {
+        const date = new Date(dateString);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        
+        return `${year}-${month}-${day}`;
+      }
+
     // fetch event and donors data
     useEffect(() => {
         // create a function to fetch data
@@ -93,7 +102,7 @@ function SingleEventPage() {
                 const data = eventResponse.data;
                 setNewEvent({
                     name: data.name,
-                    date: data.date,
+                    raw_date: formatDateForInput(data.raw_date), // Date object
                     city: data.city,
                     location: data.location,
                     medical_focus: data.medical_focus,
@@ -165,6 +174,7 @@ function SingleEventPage() {
     const handleCancelEditEvent = () => {
         setIsPopupVisible(false);
         setNewEvent(event);
+        setNewEvent({"raw_date": formatDateForInput(event.raw_date) });
         setErrors({});
     }
     // edit the event details
@@ -194,7 +204,7 @@ function SingleEventPage() {
         // Map frontend fields to backend keys.
         const payload = {
             name: newEvent.name,
-            date: newEvent.date,
+            date: newEvent.raw_date, // Date object for date picker
             location: newEvent.location,
             city: newEvent.city,
             medical_focus: newEvent.medical_focus,
@@ -212,6 +222,7 @@ function SingleEventPage() {
             // Reset the form and hide it.
             setIsPopupVisible(false);
             setNewEvent(response.data);
+            setNewEvent({"raw_date": response.data.raw_date});
             setErrors({});
             window.location.reload(); // Reload the page to reflect changes
         } catch (err) {

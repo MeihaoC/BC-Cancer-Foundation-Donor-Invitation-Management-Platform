@@ -2,6 +2,7 @@ import React from "react";
 
 // Utility: Capitalize camelCase fields for labels
 const capitalizeFieldName = (fieldName) => {
+  if (fieldName === "raw_date") return "Date"; // Special case for raw_date
   return fieldName
     .replace(/_/g, " ")                 // Replace underscores with spaces
     .replace(/([A-Z])/g, " $1")         // Add space before capital letters (camelCase)
@@ -76,11 +77,22 @@ const EventFormPopup = ({
                   ) : (
                     <input
                       className="form-input"
-                      type={key === "date" ? "date" : key === "capacity" ? "number" : "text"}
+                      type={key === "raw_date" ? "date" : key === "capacity" ? "number" : "text"}
                       placeholder={capitalizeFieldName(key)}
                       value={eventData[key]}
                       min={key === "capacity" ? "1" : undefined}
-                      onChange={(e) => setEventData({ ...eventData, [key]: e.target.value })}
+                      step={key === "capacity" ? "1" : undefined} // Add step="1" for integers only
+                      onChange={(e) => {
+                        if (key === "capacity") {
+                          // Only update if empty or a positive integer
+                          const value = e.target.value;
+                          if (value === "" || (/^\d+$/.test(value) && parseInt(value) > 0)) {
+                            setEventData({ ...eventData, [key]: value });
+                          }
+                        } else {
+                          setEventData({ ...eventData, [key]: e.target.value });
+                        }
+                      }}
                     />
                   )}
       
