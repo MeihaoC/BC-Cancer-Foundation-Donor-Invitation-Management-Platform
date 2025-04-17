@@ -1,4 +1,5 @@
-const { db, hashPassword } = require('../db');
+const db = require('../db');
+const hashPassword = require('../db').hashPassword;
 
 const hashAllUsers = async () => {
   try {

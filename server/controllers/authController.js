@@ -1,11 +1,11 @@
-import dotenv from 'dotenv';
-import jwt from 'jsonwebtoken';
-import bcrypt from 'bcryptjs';
-import db from '../db.js'; 
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const dotenv = require('dotenv');
+const db = require('../db');
 
 dotenv.config();
 
-export const login = async (req, res) => {
+const login = async (req, res) => {
   const { email, password } = req.body;
 
   try {
@@ -40,4 +40,8 @@ export const login = async (req, res) => {
     console.error('Login error:', err);
     res.status(500).json({ message: 'Login failed' });
   }
+};
+
+module.exports = {
+    login
 };
