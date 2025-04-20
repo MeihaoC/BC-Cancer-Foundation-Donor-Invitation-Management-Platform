@@ -13,11 +13,15 @@ This platform enables fundraisers and coordinators to:
 
 Built with a **React frontend**, **Express.js backend**, and **MySQL** database, this tool supports efficient event and donor management through a responsive UI and RESTful APIs.
 
-## 🔗 Deploy Link
+## 🔗 Live Demo
 
-https://donor-invitation-management-system.netlify.app/
+🌐 [Donor Invitation Management Platform (Netlify)](https://donor-invitation-management-system.netlify.app/)
 
-## ⚙️ Setup
+> **Login Example:**  
+> - **Email**: `alice@example.com`  
+> - **Password**: `password123`
+
+## ⚙️ Local Setup
 
 1. Clone the repository
 ```bash
