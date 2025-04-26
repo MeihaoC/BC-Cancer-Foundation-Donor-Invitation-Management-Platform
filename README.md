@@ -16,7 +16,7 @@ Built with a **React frontend**, **Express.js backend**, and **MySQL** database,
 ## 🔗 Live Demo
 
 🌐 [Donor Invitation Management Platform (Netlify)](https://donor-invitation-management-system.netlify.app/)
-📹 [Demo video on YouTube] (https://www.youtube.com/watch?v=ZfX092zNjuk)
+📹 [Demo video on YouTube](https://www.youtube.com/watch?v=ZfX092zNjuk)
 > **Login Example:**  
 > - **Email**: `alice@example.com`  
 > - **Password**: `password123`
