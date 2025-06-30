@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import axios from "axios";
+import api from "../utils/axiosConfig";
 import "../css/EventPage.css";
 import Topbar from "../components/Topbar";
 import Sidebar from "../components/Sidebar";
@@ -120,7 +120,7 @@ export default function EventPage() {
         console.log("Payload to be sent:", payload);
 
         try {
-            const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/events`, payload);
+            const response = await api.post(`/events`, payload);
             console.log("Event added:", response.data);
             alert(response.data.message);
             // After successful creation, refresh the events list.
@@ -168,7 +168,7 @@ export default function EventPage() {
         try {
             console.log("Searching for events with name:", searchTerm);
             // Update search field in the api
-            const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/events/search?field=${searchField}&query=${searchTerm}`);
+            const response = await api.get(`/events/search?field=${searchField}&query=${searchTerm}`);
             console.log("Events fetched:", response.data);
             setEventData(response.data);
         } catch (err) {
@@ -180,7 +180,7 @@ export default function EventPage() {
     // Fetch all events from the backend
     const fetchAllEvents = async () => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/events`);
+            const response = await api.get(`/events`);
             console.log("Events fetched:", response.data);
             setEventData(response.data);
         } catch (err) {
@@ -193,13 +193,13 @@ export default function EventPage() {
     useEffect(() => {
         fetchAllEvents();
 
-        axios
-            .get(`${process.env.REACT_APP_API_URL}/api/events/medical-focuses`)
+        api
+            .get(`/events/medical-focuses`)
             .then((response) => setMedicalFocusOptions(response.data))
             .catch((err) => console.error("Error fetching medical focuses:", err));
 
-        axios
-            .get(`${process.env.REACT_APP_API_URL}/api/events/users`)
+        api
+            .get(`/events/users`)
             .then((response) => setUserOptions(response.data))
             .catch((err) => console.error("Error fetching user names:", err));
     }, []);

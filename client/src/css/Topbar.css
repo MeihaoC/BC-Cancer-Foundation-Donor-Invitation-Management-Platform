@@ -12,8 +12,32 @@
     font-weight: bold;
   }
   
-  .topbar .user-icon {
-    font-size: 24px;
+  .topbar .user-section {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+  
+  .topbar .user-name {
+    font-size: 16px;
+    font-weight: 500;
+  }
+  
+  .topbar .logout-btn {
+    background-color: #dc2626;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    transition: background-color 0.2s;
+  }
+  
+  .topbar .logout-btn:hover {
+    background-color: #b91c1c;
   }
   

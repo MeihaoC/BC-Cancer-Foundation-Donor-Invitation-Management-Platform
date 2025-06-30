@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import '../css/LoginPage.css';
@@ -11,6 +11,33 @@ function Login() {
     const [error, setError] = useState(null);
     // create a function to navigate to the home page
     const navigate = useNavigate();
+
+    // Check if user is already logged in
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        const user = localStorage.getItem('user');
+        
+        if (token && user) {
+            // Check if token is expired
+            try {
+                const tokenData = JSON.parse(atob(token.split('.')[1]));
+                const currentTime = Date.now() / 1000;
+                
+                if (tokenData.exp > currentTime) {
+                    // Token is valid, redirect to events
+                    navigate('/events');
+                } else {
+                    // Token is expired, clear storage
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('user');
+                }
+            } catch (error) {
+                // Invalid token, clear storage
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+            }
+        }
+    }, [navigate]);
 
     // create a function to handle form submission
     const handleSubmit = async (e) => {
